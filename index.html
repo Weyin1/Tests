@@ -78,6 +78,35 @@ td.recipe{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white
 .fallback-title{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap} .fallback-title span{color:var(--muted);font-weight:800} .fallback-form{color:var(--muted);font-size:14px;margin:4px 0 10px}
 details{border-top:1px solid var(--line);padding:8px 0} summary{cursor:pointer;font-weight:800;color:var(--accent)}
 @media (max-width:860px){.grid{grid-template-columns:1fr}.controls{position:static}.meta{grid-template-columns:1fr}.choiceGrid{grid-template-columns:1fr}.fallback-grid{grid-template-columns:1fr}header,main{padding-left:12px;padding-right:12px}.row{flex-wrap:wrap}}
+
+/* Удобные действия для телефона */
+.desktopControlActions{margin-top:10px}
+.quizActions{margin-top:10px;flex-wrap:wrap}
+.mobileActionBar{display:none}
+.resetSmall{font-size:13px;padding:9px 10px;margin-top:10px;width:100%}
+@media (max-width:860px){
+  body{padding-bottom:92px}
+  .desktopControlActions{display:none}
+  .quizActions #check,.quizActions #show,.quizActions #newCardInline{display:none}
+  .mobileActionBar{
+    position:fixed;
+    left:10px;
+    right:10px;
+    bottom:calc(10px + env(safe-area-inset-bottom));
+    z-index:50;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:var(--panel);
+    box-shadow:0 12px 36px rgba(22,32,51,.22);
+  }
+  .mobileActionBar button{padding:13px 8px;font-size:15px}
+  .card{padding-bottom:18px}
+}
+
 @media print{body{background:#fff}.controls,.card,.nojs .notice{display:none}.grid{display:block}.panel{box-shadow:none;border:0}.tableWrap{max-height:none;overflow:visible;border:0}th{position:static}}
 </style>
 </head>
@@ -806,10 +835,10 @@ S. В/в капельно в разведении, каждые 6 ч, в теч�
       </select>
       <div class="label">Фильтр</div>
       <input id="filter" placeholder="Название, №, дозировка, латынь...">
-      <div class="row" style="margin-top:10px">
+      <div class="row desktopControlActions">
         <button type="button" id="newCard" class="skip">Пропустить вопрос</button>
-        <button type="button" id="reset" class="resetBtn">Сброс</button>
       </div>
+      <button type="button" id="reset" class="resetBtn resetSmall">Сбросить прогресс</button>
       <button type="button" id="openTable" class="ghost" style="margin-top:10px;width:100%">Открыть таблицу всех препаратов</button>
       <div class="stats">
         <div class="stat"><span class="small">Карточек</span><b id="statCards">75</b></div>
@@ -830,11 +859,17 @@ S. В/в капельно в разведении, каждые 6 ч, в теч�
           <textarea id="answer" placeholder="Введи ответ здесь"></textarea>
           <div id="doseChoices" class="choiceGrid hidden"></div>
         </div>
-        <div class="row" style="margin-top:10px;flex-wrap:wrap">
+        <div class="row quizActions">
           <button type="button" id="check">Проверить</button>
           <button type="button" id="show" class="secondary">Показать ответ</button>
+          <button type="button" id="newCardInline" class="skip">Пропустить</button>
           <button type="button" id="markGood" class="good">Знаю</button>
           <button type="button" id="markBad" class="bad">Повторить</button>
+        </div>
+        <div class="mobileActionBar" aria-label="Быстрые действия">
+          <button type="button" id="checkMobile">Проверить</button>
+          <button type="button" id="showMobile" class="secondary">Ответ</button>
+          <button type="button" id="newCardMobile" class="skip">Пропустить</button>
         </div>
         <div id="result" class="result"></div>
       </div>
@@ -1258,8 +1293,8 @@ function renderTable() { var q=norm(el('tableSearch').value || ''), rows=[]; for
 function showTable() { setHidden(el('quizTab'), true); setHidden(el('tableTab'), false); renderTable(); safeFocus(el('tableSearch')); }
 function showQuiz() { setHidden(el('tableTab'), true); setHidden(el('quizTab'), false); if (!shouldUseDoseChoices()) safeFocus(el('answer')); }
 function init() {
-  on(el('newCard'),'click',pickCard); on(el('check'),'click',function(){checkAnswer(false);}); on(el('show'),'click',function(){checkAnswer(true);}); on(el('markGood'),'click',function(){mark(true);}); on(el('markBad'),'click',function(){mark(false);});
-  on(el('filter'),'input',updateStats); on(el('mode'),'change',pickCard); on(el('doseAnswerStyle'),'change',function(){ if (current) renderCard(); }); on(el('order'),'change',pickCard); on(el('reset'),'click',function(){ if (confirm('Сбросить весь прогресс?')) { progress={}; saveProgress(); } });
+  on(el('newCard'),'click',pickCard); on(el('newCardInline'),'click',pickCard); on(el('newCardMobile'),'click',pickCard); on(el('check'),'click',function(){checkAnswer(false);}); on(el('checkMobile'),'click',function(){checkAnswer(false);}); on(el('show'),'click',function(){checkAnswer(true);}); on(el('showMobile'),'click',function(){checkAnswer(true);}); on(el('markGood'),'click',function(){mark(true);}); on(el('markBad'),'click',function(){mark(false);});
+  on(el('filter'),'input',updateStats); on(el('mode'),'change',pickCard); on(el('doseAnswerStyle'),'change',function(){ if (current) renderCard(); }); on(el('order'),'change',pickCard); on(el('reset'),'click',function(){ if (confirm('Точно сбросить весь прогресс? Это действие нельзя отменить.')) { progress={}; saveProgress(); } });
   on(el('openTable'),'click',showTable); on(el('closeTable'),'click',showQuiz); on(el('tableSearch'),'input',renderTable); on(el('print'),'click',function(){ try { window.print(); } catch(e) {} });
   on(document,'keydown',function(e){ e=e||window.event; var target=e.target||e.srcElement; var tag=target&&target.tagName; var tableOpen=!hasClass(el('tableTab'),'hidden'); if (tableOpen) { if (e.key === 'Escape') { e.preventDefault && e.preventDefault(); showQuiz(); } return; } if (tag && /TEXTAREA|INPUT|SELECT/.test(tag) && e.key !== 'Enter') return; if (e.key === 'Enter') { e.preventDefault && e.preventDefault(); checkAnswer(false); } if (e.key === ' ' || e.code === 'Space') { e.preventDefault && e.preventDefault(); checkAnswer(true); } if (e.key === '1') { e.preventDefault && e.preventDefault(); mark(true); } if (e.key === '2') { e.preventDefault && e.preventDefault(); mark(false); } if (String(e.key || '').toLowerCase() === 'n') { e.preventDefault && e.preventDefault(); pickCard(); } });
   updateStats(); updateDoseAnswerFormatVisibility(); renderTable(); pickCard();
