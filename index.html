@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>Тренажёр рецептов — Telegram Mini App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --bg:#f6f7fb; --panel:#fff; --text:#172033; --muted:#647084; --line:#d9dfeb;
+  --accent:#355cff; --accent2:#eef2ff; --good:#168a4a; --bad:#bf2f35;
+  --shadow:0 10px 30px rgba(22,32,51,.08); --radius:18px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(circle at 20% 0%,#eef2ff 0,transparent 35%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
+header{max-width:1180px;margin:0 auto;padding:22px 16px 10px}
+h1{margin:0 0 8px;font-size:clamp(28px,7vw,46px);letter-spacing:-.04em}
+.sub{color:var(--muted);max-width:850px;font-size:15px}
+main{max-width:1180px;margin:0 auto;padding:10px 16px 38px}
+.panel{background:rgba(255,255,255,.92);border:1px solid rgba(217,223,235,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
+.app{display:none}
+html.app-ready .app{display:block}
+.nojs{display:block}
+html.app-ready .nojs{display:none!important}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
+.controls{padding:16px;position:sticky;top:12px}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin:12px 0 6px}
+select,input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);padding:12px;font:inherit;outline:none}
+textarea{min-height:88px;resize:vertical}
+select:focus,input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent2)}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+button{appearance:none;-webkit-appearance:none;border:0;border-radius:12px;padding:12px 13px;font:inherit;font-weight:750;color:#fff;background:var(--accent);cursor:pointer;box-shadow:0 4px 16px rgba(53,92,255,.18);touch-action:manipulation}
+button.secondary{background:#eef2ff;color:#22315f;box-shadow:none;border:1px solid #dfe6ff}
+button.ghost{background:#fff;color:var(--text);border:1px solid var(--line);box-shadow:none}
+button.good{background:var(--good)} button.bad{background:var(--bad)} button.skip{background:#7c3aed} button.resetBtn{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3;box-shadow:none}
+.small{font-size:13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:#f7f9ff;border:1px solid #e4e9f7;border-radius:14px;padding:10px}
+.stat b{display:block;font-size:20px}
+.card{padding:22px;min-height:380px}
+.prompt{margin:14px 0;font-size:clamp(24px,6vw,38px);line-height:1.08;letter-spacing:-.03em}
+.meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.meta div{background:#f8faff;border:1px solid #e6ebf8;padding:10px;border-radius:14px;min-height:58px}
+.meta span{display:block;color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.choiceGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.choice{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px;cursor:pointer;font-weight:750}
+.choice input{width:auto;margin-top:3px} .choice span{overflow-wrap:anywhere}
+.result{margin-top:14px;padding:14px;border-radius:14px;border:1px solid var(--line);background:#fff;display:none}
+.result.show{display:block} .result.ok{border-color:rgba(22,138,74,.3);background:#f0fbf5} .result.no{border-color:rgba(191,47,53,.25);background:#fff4f4}
+pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;padding:12px;background:#0e1728;color:#f8fafc;border-radius:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;line-height:1.42}
+.hidden{display:none!important}
+.tablePanel{padding:16px}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#fff;max-height:620px}
+table{border-collapse:collapse;width:100%;min-width:940px;font-size:14px}
+th,td{border-bottom:1px solid #edf0f7;padding:9px 10px;vertical-align:top;text-align:left}
+th{position:sticky;top:0;background:#f4f7ff;color:#25365c;z-index:1}
+td.recipe{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap}
+.notice{padding:14px 16px;border:1px solid #f7dda0;background:#fff8df;color:#5c3f00;border-radius:14px;margin-bottom:14px}
+.fallback-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fallback-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 4px 16px rgba(22,32,51,.04)}
+.fallback-title{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap} .fallback-title span{color:var(--muted);font-weight:800} .fallback-form{color:var(--muted);font-size:14px;margin:4px 0 10px}
+details{border-top:1px solid #edf0f7;padding:8px 0} summary{cursor:pointer;font-weight:800;color:#263d7a}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.controls{position:static}.meta{grid-template-columns:1fr}.choiceGrid{grid-template-columns:1fr}.fallback-grid{grid-template-columns:1fr}header,main{padding-left:12px;padding-right:12px}.row{flex-wrap:wrap}}
+@media print{body{background:#fff}.controls,.card,.nojs .notice{display:none}.grid{display:block}.panel{box-shadow:none;border:0}.tableWrap{max-height:none;overflow:visible;border:0}th{position:static}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Тренажёр рецептов</h1>
+  <div class="sub">Telegram Mini App-версия: открывается через кнопку бота внутри Telegram. Если открыть как обычный HTML-файл, запасные карточки ниже всё равно останутся видимыми.</div>
+</header>
+
+<main class="nojs" id="fallback">
+  <div class="notice" id="jsError">Если видишь этот блок вместо обычного тренажёра с кнопками, значит Telegram не запустил JavaScript для HTML-файла. Внутри Telegram всё равно можно тренироваться через карточки ниже: нажимай на нужный пункт, чтобы раскрыть ответ. Для полного режима обычно нужно открыть файл через «Поделиться» → браузер.</div>
+  <section class="fallback-grid">
+<article class="fallback-card">
+  <div class="fallback-title"><span>№1</span><b>Адеметионин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,4 г</pre></details>
+  <details><summary>Латынь</summary><pre>Ademethionini</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Ademethionini 0,4 obd. №10
+D.S. 1 таблетка до обеда</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№2</span><b>Азитромицин</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,5 г</pre></details>
+  <details><summary>Латынь</summary><pre>Azithromycini</pre></details>
+  <details><summary>Количество</summary><pre>№5</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Azithromycini 0,5 №5
+D.S. 1 таблетка 1 раз в день 3 дня</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№3</span><b>Аклидиния бромид</b></div>
+  <div class="fallback-form">порошок для ингаляций дозированный</div>
+  <details><summary>Дозировка</summary><pre>0,000322 г</pre></details>
+  <details><summary>Латынь</summary><pre>Aclidinii bromidi</pre></details>
+  <details><summary>Количество</summary><pre>№60</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Pulv. Aclidinii bromidi 0,000322
+D.t.d. №60
+S. Ингаляционно: 1 доза по потребности</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№4</span><b>Аллопуринол</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,1 г</pre></details>
+  <details><summary>Латынь</summary><pre>Allopurinoli</pre></details>
+  <details><summary>Количество</summary><pre>№120</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Allopurinoli 0,1 №120
+D.S. По 2 таблетки 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№5</span><b>Амиодарон</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,2 г</pre></details>
+  <details><summary>Латынь</summary><pre>Amiodaroni</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Amiodaroni 0,2 №10
+D.S. 1 таблетка 3 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№6</span><b>Амлодипин</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,01 г</pre></details>
+  <details><summary>Латынь</summary><pre>Amlodipini</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Amlodipini 0,01 №10
+D.S. По 1 таблетке 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№7</span><b>Амоксициллин</b></div>
+  <div class="fallback-form">таблетки диспергируемые</div>
+  <details><summary>Дозировка</summary><pre>0,5 г</pre></details>
+  <details><summary>Латынь</summary><pre>Amoxicillini</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Amoxicillini 0,5 №20
+D.S. Внутрь по 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№8</span><b>Апиксабан</b></div>
+  <div class="fallback-form">таблетки, покрытые пленочной оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,005 г</pre></details>
+  <details><summary>Латынь</summary><pre>Apixabani</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Apixabani 0,005 obd. №20
+D.S. Внутрь по 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№9</span><b>Аторвастатин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,02 г</pre></details>
+  <details><summary>Латынь</summary><pre>Atorvastatini</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Atorvastatini 0,02 obd. №30
+D.S. Внутрь по 1 таблетке 1 раз в день вечером</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№10</span><b>Ацетилсалициловая кислота</b></div>
+  <div class="fallback-form">таблетки, покрытые кишечнорастворимой оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,25 г</pre></details>
+  <details><summary>Латынь</summary><pre>Acidi acetylsalicylici</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Acidi acetylsalicylici 0,25 obd. №20
+D.S. Внутрь по 1 таблетке 3 раза в день за 30 мин до еды</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№11</span><b>Бисопролол</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,005 г</pre></details>
+  <details><summary>Латынь</summary><pre>Bisoprololi</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Bisoprololi 0,005 obd. №20
+D.S. Внутрь по 1 таблетке 1 раз в день утром</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№12</span><b>Будесонид/формотерол</b></div>
+  <div class="fallback-form">порошок для ингаляций дозированный</div>
+  <details><summary>Дозировка</summary><pre>0,00016 г + 0,0000045 г</pre></details>
+  <details><summary>Латынь</summary><pre>Budesonidi + Formoteroli</pre></details>
+  <details><summary>Количество</summary><pre>№120; 2</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Pulv. Budesonidi 0,00016
+Formoteroli 0,0000045
+D.t.d. №120
+S. По 1-2 вдоха 2-3 раза в сутки ингаляционно</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№13</span><b>Валсартан</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,08 г</pre></details>
+  <details><summary>Латынь</summary><pre>Valsartani</pre></details>
+  <details><summary>Количество</summary><pre>№28</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Valsartani 0,08 obd. №28
+D.S. Внутрь по 1 таблетке 1 раз в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№14</span><b>Варфарин</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,0025 г</pre></details>
+  <details><summary>Латынь</summary><pre>Warfarini</pre></details>
+  <details><summary>Количество</summary><pre>№50</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Warfarini 0,0025 №50
+D.S. Принимать внутрь однократно, в одно и то же время суток</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№15</span><b>Верапамил</b></div>
+  <div class="fallback-form">драже</div>
+  <details><summary>Дозировка</summary><pre>0,04 г</pre></details>
+  <details><summary>Латынь</summary><pre>Verapamili</pre></details>
+  <details><summary>Количество</summary><pre>№50</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Dragee Verapamili 0,04 №50
+D.S. По 1 драже 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№16</span><b>Висмута трикалия дицитрат</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,12 г</pre></details>
+  <details><summary>Латынь</summary><pre>Bismuthi trikalii dicitratis</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Bismuthi trikalii dicitratis 0,12 obd. №30
+D.S. По 2 таблетки 2 раза в день за 30 мин до еды</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№17</span><b>Гликлазид</b></div>
+  <div class="fallback-form">таблетки с модифицированным высвобождением</div>
+  <details><summary>Дозировка</summary><pre>0,08 г</pre></details>
+  <details><summary>Латынь</summary><pre>Gliclazidi</pre></details>
+  <details><summary>Количество</summary><pre>№60</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Gliclazidi 0,08 №60
+D.S. По 1 таблетке 2 раза в день во время еды</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№18</span><b>Глюкозамина сульфат</b></div>
+  <div class="fallback-form">порошок для приема внутрь</div>
+  <details><summary>Дозировка</summary><pre>1,5 г</pre></details>
+  <details><summary>Латынь</summary><pre>Glucosamini sulfatis</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Pulv. Glucosamini sulfatis 1,5 №20
+D.S. Содержимое 1 пакетика растворить в 200 мл воды, принимать 1 раз в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№19</span><b>Дабигатран</b></div>
+  <div class="fallback-form">капсулы</div>
+  <details><summary>Дозировка</summary><pre>0,15 г</pre></details>
+  <details><summary>Латынь</summary><pre>Dabigatrani etexilatis mesylati</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Dabigatrani etexilatis mesylati 0,15 №30
+D.S. По 1 капсуле 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№20</span><b>Дигоксин</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,00025 г</pre></details>
+  <details><summary>Латынь</summary><pre>Digoxini</pre></details>
+  <details><summary>Количество</summary><pre>№50</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Digoxini 0,00025 №50
+D.S. По 1 таблетке утром</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№21</span><b>Диклофенак</b></div>
+  <div class="fallback-form">мазь для наружного применения</div>
+  <details><summary>Дозировка</summary><pre>1% — 30,0 г</pre></details>
+  <details><summary>Латынь</summary><pre>Diclofenaci</pre></details>
+  <details><summary>Количество</summary><pre>30,0; 3</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Ung. Diclofenaci 1% — 30,0
+D.S. Втирать в очаги боли 2-3 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№22</span><b>Дротаверин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,04 г</pre></details>
+  <details><summary>Латынь</summary><pre>Drotaverini</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Drotaverini 0,04 obd. №30
+D.S. По 1 таблетке 3 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№23</span><b>Железа сульфат</b></div>
+  <div class="fallback-form">драже</div>
+  <details><summary>Дозировка</summary><pre>0,32 г</pre></details>
+  <details><summary>Латынь</summary><pre>Ferri sulfatis</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Dragee Ferri sulfatis 0,32 №30
+D.S. По 1 драже 2 раза в день после еды</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№24</span><b>Железа (III) гидроксид полимальтозат</b></div>
+  <div class="fallback-form">таблетки жевательные</div>
+  <details><summary>Дозировка</summary><pre>0,1 г</pre></details>
+  <details><summary>Латынь</summary><pre>Ferri (III) hydroxydi polymaltosati</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Ferri (III) hydroxydi polymaltosati 0,1 №30
+D.S. Принимать по 1 таблетке 2 раза в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№25</span><b>Железа (III) гидроксид сахарозный комплекс</b></div>
+  <div class="fallback-form">раствор для внутривенного введения</div>
+  <details><summary>Дозировка</summary><pre>10% — 5 мл</pre></details>
+  <details><summary>Латынь</summary><pre>Ferrici (III) hydroxydi saccharati</pre></details>
+  <details><summary>Количество</summary><pre>5 ml</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Ferrici (III) hydroxydi saccharati 10% — 5 ml
+D.S. В/в медленно</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№26</span><b>Зафирлукаст</b></div>
+  <div class="fallback-form">таблетки, покрытые пленочной оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,02 г</pre></details>
+  <details><summary>Латынь</summary><pre>Zafirlukasti</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Zafirlukasti 0,02 obd. №30
+D.S. По 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№27</span><b>Ивабрадин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,005 г</pre></details>
+  <details><summary>Латынь</summary><pre>Ivabradini</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Ivabradini 0,005 obd. №30
+D.S. По 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№28</span><b>Изосорбид мононитрат</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,02 г</pre></details>
+  <details><summary>Латынь</summary><pre>Isosorbidi mononitrati</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Isosorbidi mononitrati 0,02 №30
+D.S. По 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№29</span><b>Индапамид</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,0025 г</pre></details>
+  <details><summary>Латынь</summary><pre>Indapamidi</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Indapamidi 0,0025 №30
+D.S. По 1 таблетке утром</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№30</span><b>Ипратропия бромид</b></div>
+  <div class="fallback-form">ампулы для небулайзерной терапии</div>
+  <details><summary>Дозировка</summary><pre>0,025% — 20 мл</pre></details>
+  <details><summary>Латынь</summary><pre>Ipratropii bromidi</pre></details>
+  <details><summary>Количество</summary><pre>№1; 20 ml; 4</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Ipratropii bromidi 0,025% — 20 ml
+D.t.d. №1 in amp.
+S. По 2,0 мл 3-4 раза в сутки через небулайзер</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№31</span><b>Кандесартан</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,016 г</pre></details>
+  <details><summary>Латынь</summary><pre>Candesartani</pre></details>
+  <details><summary>Количество</summary><pre>№28</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Candesartani 0,016 №28
+D.S. По 1 таблетке в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№32</span><b>Каптоприл</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,025 г</pre></details>
+  <details><summary>Латынь</summary><pre>Captoprili</pre></details>
+  <details><summary>Количество</summary><pre>№50</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Captoprili 0,025 №50
+D.S. По 1 таблетке 2 раза в день за час до еды</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№33</span><b>Кларитромицин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,5 г</pre></details>
+  <details><summary>Латынь</summary><pre>Clarithromycini</pre></details>
+  <details><summary>Количество</summary><pre>№14</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Clarithromycini 0,5 obd. №14
+D.S. По 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№34</span><b>Клопидогрел</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,075 г</pre></details>
+  <details><summary>Латынь</summary><pre>Clopidogreli</pre></details>
+  <details><summary>Количество</summary><pre>№14</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Clopidogreli 0,075 obd. №14
+D.S. По 1 таблетке 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№35</span><b>Лактулоза</b></div>
+  <div class="fallback-form">сироп</div>
+  <details><summary>Дозировка</summary><pre>66,7% — 500 мл</pre></details>
+  <details><summary>Латынь</summary><pre>Lactulosi</pre></details>
+  <details><summary>Количество</summary><pre>500 ml</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sir. Lactulosi 66,7% — 500 ml
+D.S. Внутрь по 15 мл 1 раз в день во время еды</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№36</span><b>Левофлоксацин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,5 г</pre></details>
+  <details><summary>Латынь</summary><pre>Levofloxacini</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Levofloxacini 0,5 obd. №10
+D.S. По 1 таблетке 1 раз в сутки за 1 час до еды</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№37</span><b>Лизиноприл</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,01 г</pre></details>
+  <details><summary>Латынь</summary><pre>Lisinoprili</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Lisinoprili 0,01 №30
+D.S. По 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№38</span><b>Лоперамид</b></div>
+  <div class="fallback-form">капсулы</div>
+  <details><summary>Дозировка</summary><pre>0,002 г</pre></details>
+  <details><summary>Латынь</summary><pre>Loperamidi</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Loperamidi 0,002 №10
+D.S. По 2 капсулы 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№39</span><b>Магния сульфат</b></div>
+  <div class="fallback-form">раствор для внутримышечных введений</div>
+  <details><summary>Дозировка</summary><pre>25% — 10 мл</pre></details>
+  <details><summary>Латынь</summary><pre>Magnesii sulfatis</pre></details>
+  <details><summary>Количество</summary><pre>№10; 10 ml</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Magnesii sulfatis 25% — 10 ml
+D.t.d. №10 in amp.
+S. В/в медленно</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№40</span><b>Мебеверин</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,2 г</pre></details>
+  <details><summary>Латынь</summary><pre>Mebeverini</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Mebeverini 0,2 №10
+D.S. По 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№41</span><b>Мелоксикам</b></div>
+  <div class="fallback-form">раствор для инъекций</div>
+  <details><summary>Дозировка</summary><pre>1% — 1,5 мл</pre></details>
+  <details><summary>Латынь</summary><pre>Meloxicami</pre></details>
+  <details><summary>Количество</summary><pre>№10; 1,5 ml</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Meloxicami 1% — 1,5 ml
+D.t.d. №10 in amp.
+S. В/м</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№42</span><b>Месалазин</b></div>
+  <div class="fallback-form">суппозитории ректальные</div>
+  <details><summary>Дозировка</summary><pre>0,5 г</pre></details>
+  <details><summary>Латынь</summary><pre>Mesalazini</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Supp. Mesalazini 0,5 №30
+D.S. По 1 свече 1 раз в день перед сном</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№43</span><b>Метопролол сукцинат</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,095 г</pre></details>
+  <details><summary>Латынь</summary><pre>Metoprololi succinatis</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Metoprololi succinatis 0,095 №20
+D.S. По 1 таблетке 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№44</span><b>Метотрексат</b></div>
+  <div class="fallback-form">раствор для подкожного введения</div>
+  <details><summary>Дозировка</summary><pre>2% — 1 мл</pre></details>
+  <details><summary>Латынь</summary><pre>Methotrexati</pre></details>
+  <details><summary>Количество</summary><pre>№10; 1 ml</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Methotrexati 2% — 1 ml
+D.t.d. №10 in amp.
+S. П/к 1 раз в неделю</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№45</span><b>Метронидазол</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,25 г</pre></details>
+  <details><summary>Латынь</summary><pre>Metronidazoli</pre></details>
+  <details><summary>Количество</summary><pre>№10; 5</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Metronidazoli 0,25 №10
+D.S. По 1 таблетке 2 раза в день — 5 дней</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№46</span><b>Метформин</b></div>
+  <div class="fallback-form">таблетки пролонгированного действия</div>
+  <details><summary>Дозировка</summary><pre>0,5 г</pre></details>
+  <details><summary>Латынь</summary><pre>Metformini</pre></details>
+  <details><summary>Количество</summary><pre>№100</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Metformini 0,5 №100
+D.S. По 1 таблетке 2 раза в день во время или после еды</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№47</span><b>Моксифлоксацин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,4 г</pre></details>
+  <details><summary>Латынь</summary><pre>Moxifloxacini</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Moxifloxacini 0,4 obd. №10
+D.S. Внутрь по 1 таблетке 1 раз в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№48</span><b>Моксонидин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,0002 г</pre></details>
+  <details><summary>Латынь</summary><pre>Moxonidini</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Moxonidini 0,0002 obd. №20
+D.S. По 1 таблетке 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№49</span><b>Нитроглицерин</b></div>
+  <div class="fallback-form">таблетки или аэрозоль подъязычный</div>
+  <details><summary>Дозировка</summary><pre>0,0005 г / 0,0004 г/доза</pre></details>
+  <details><summary>Латынь</summary><pre>Nitroglycerini</pre></details>
+  <details><summary>Количество</summary><pre>№20; 10,0; 2 доз</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Nitroglycerini 0,0005 №20
+D.S. По 1 таблетке под язык.
+Rp.: Aer. Nitroglycerini 0,0004/d — 10,0
+D.S. По 1-2 дозы на или под язык для купирования приступа стенокардии</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№50</span><b>Норфлоксацин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,4 г</pre></details>
+  <details><summary>Латынь</summary><pre>Norfloxacini</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Norfloxacini 0,4 obd. №20
+D.S. По 1 таблетке 2 раза в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№51</span><b>Озельтамивир</b></div>
+  <div class="fallback-form">капсулы</div>
+  <details><summary>Дозировка</summary><pre>0,075 г</pre></details>
+  <details><summary>Латынь</summary><pre>Oseltamiviri</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Oseltamiviri 0,075 №10
+D.S. Принимать по 1 капсуле 2 раза в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№52</span><b>Омепразол</b></div>
+  <div class="fallback-form">капсулы</div>
+  <details><summary>Дозировка</summary><pre>0,02 г</pre></details>
+  <details><summary>Латынь</summary><pre>Omeprazoli</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Omeprazoli 0,02 №20
+D.S. Внутрь по 1 капсуле натощак за 30 мин до еды 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№53</span><b>Панкреатин</b></div>
+  <div class="fallback-form">капсулы</div>
+  <details><summary>Дозировка</summary><pre>25000 ЕД</pre></details>
+  <details><summary>Латынь</summary><pre>Pancreatini</pre></details>
+  <details><summary>Количество</summary><pre>№60</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Pancreatini 25000 ЕД №60
+D.S. Внутрь по 1 капсуле во время еды, запивая водой</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№54</span><b>Парацетамол</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,5 г</pre></details>
+  <details><summary>Латынь</summary><pre>Paracetamoli</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Paracetamoli 0,5 №20
+D.S. Внутрь по 1 таблетке при повышении температуры выше 38,5 °C</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№55</span><b>Периндоприл</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,004 г</pre></details>
+  <details><summary>Латынь</summary><pre>Perindoprili</pre></details>
+  <details><summary>Количество</summary><pre>№10</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Perindoprili 0,004 obd. №10
+D.S. По 1 таблетке 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№56</span><b>Преднизолон</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,005 г</pre></details>
+  <details><summary>Латынь</summary><pre>Prednisoloni</pre></details>
+  <details><summary>Количество</summary><pre>№60</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Prednisoloni 0,005 №60
+D.S. Внутрь: 3 таблетки в 7 ч, 2 таблетки в 11 ч, 1 таблетка в 13 ч</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№57</span><b>Рабепразол</b></div>
+  <div class="fallback-form">капсулы</div>
+  <details><summary>Дозировка</summary><pre>0,02 г</pre></details>
+  <details><summary>Латынь</summary><pre>Rabeprazoli</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Rabeprazoli 0,02 №20
+D.S. Внутрь по 1 капсуле 1 раз в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№58</span><b>Рамиприл</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,01 г</pre></details>
+  <details><summary>Латынь</summary><pre>Ramiprili</pre></details>
+  <details><summary>Количество</summary><pre>№50</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Ramiprili 0,01 №50
+D.S. По 1 таблетке 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№59</span><b>Розувастатин</b></div>
+  <div class="fallback-form">таблетки, покрытые оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,01 г</pre></details>
+  <details><summary>Латынь</summary><pre>Rosuvastatini</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Rosuvastatini 0,01 obd. №30
+D.S. По 1 таблетке 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№60</span><b>Саксаглиптин</b></div>
+  <div class="fallback-form">таблетки, покрытые пленочной оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,0025 г</pre></details>
+  <details><summary>Латынь</summary><pre>Saxagliptini</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Saxagliptini 0,0025 obd. №30
+D.S. Внутрь независимо от приема пищи 1 раз в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№61</span><b>Сальметерол</b></div>
+  <div class="fallback-form">порошок для ингаляций дозированный</div>
+  <details><summary>Дозировка</summary><pre>0,000025 г/доза</pre></details>
+  <details><summary>Латынь</summary><pre>Salmeteroli</pre></details>
+  <details><summary>Количество</summary><pre>—</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Pulv. Salmeteroli 0,000025/dosis
+D.S. Ингаляционно по назначенной схеме</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№62</span><b>Сальбутамол</b></div>
+  <div class="fallback-form">аэрозоль для ингаляций дозированный</div>
+  <details><summary>Дозировка</summary><pre>0,0001 г/доза</pre></details>
+  <details><summary>Латынь</summary><pre>Salbutamoli</pre></details>
+  <details><summary>Количество</summary><pre>№200; 4</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Aer. Salbutamoli 0,0001/dosis №200
+D.S. По 1 ингаляции 3-4 раза в день при обострении бронхиальной астмы</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№63</span><b>Симетикон</b></div>
+  <div class="fallback-form">капсулы</div>
+  <details><summary>Дозировка</summary><pre>0,04 г</pre></details>
+  <details><summary>Латынь</summary><pre>Simethiconi</pre></details>
+  <details><summary>Количество</summary><pre>№25</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Simethiconi 0,04 №25
+D.S. По 1 капсуле 3 раза в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№64</span><b>Смектит диоктаэдрический</b></div>
+  <div class="fallback-form">порошок для приготовления суспензии для приема внутрь</div>
+  <details><summary>Дозировка</summary><pre>3,0 г</pre></details>
+  <details><summary>Латынь</summary><pre>Smectiti dioctaedrici</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Pulv. Smectiti dioctaedrici 3,0 №30
+D.S. По 1 пакетику 1 раз в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№65</span><b>Спиронолактон</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,025 г</pre></details>
+  <details><summary>Латынь</summary><pre>Spironolactoni</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Spironolactoni 0,025 №20
+D.S. По 1 таблетке утром внутрь</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№66</span><b>Тиотропия бромид</b></div>
+  <div class="fallback-form">капсулы с порошком для ингаляций</div>
+  <details><summary>Дозировка</summary><pre>0,000018 г</pre></details>
+  <details><summary>Латынь</summary><pre>Tiotropii bromidi</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Tiotropii bromidi 0,000018 №30
+D.S. Для ингаляций через аэролайзер по 1 капсуле 1 раз в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№67</span><b>Торасемид</b></div>
+  <div class="fallback-form">таблетки</div>
+  <details><summary>Дозировка</summary><pre>0,01 г</pre></details>
+  <details><summary>Латынь</summary><pre>Torasemidi</pre></details>
+  <details><summary>Количество</summary><pre>№20</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Torasemidi 0,01 №20
+D.S. По 1 таблетке 1 раз в сутки утром</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№68</span><b>Урсодезоксихолевая кислота</b></div>
+  <div class="fallback-form">капсулы</div>
+  <details><summary>Дозировка</summary><pre>0,25 г</pre></details>
+  <details><summary>Латынь</summary><pre>Acidi ursodeoxycholici</pre></details>
+  <details><summary>Количество</summary><pre>№50</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Acidi ursodeoxycholici 0,25 №50
+D.S. По 2 капсулы на ночь</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№69</span><b>Фамотидин</b></div>
+  <div class="fallback-form">раствор для инъекций</div>
+  <details><summary>Дозировка</summary><pre>0,02 г</pre></details>
+  <details><summary>Латынь</summary><pre>Famotidini</pre></details>
+  <details><summary>Количество</summary><pre>№5</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Famotidini 0,02
+D.t.d. №5 in flac.
+S. Внутривенно капельно</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№70</span><b>Фенофибрат</b></div>
+  <div class="fallback-form">капсулы пролонгированного действия</div>
+  <details><summary>Дозировка</summary><pre>0,25 г</pre></details>
+  <details><summary>Латынь</summary><pre>Fenofibrati retardi</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Caps. Fenofibrati retardi 0,25 №30
+D.S. Внутрь 1 раз в сутки</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№71</span><b>Флутиказон</b></div>
+  <div class="fallback-form">порошок для ингаляций дозированный</div>
+  <details><summary>Дозировка</summary><pre>125 мкг</pre></details>
+  <details><summary>Латынь</summary><pre>Fluticasoni propionatis</pre></details>
+  <details><summary>Количество</summary><pre>№60</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Fluticasoni propionatis 125 mcg
+D.t.d. №60
+S. Ингаляционно по 2 дозы 2 раза в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№72</span><b>Фолиевая кислота</b></div>
+  <div class="fallback-form">таблетки, покрытые пленочной оболочкой</div>
+  <details><summary>Дозировка</summary><pre>0,001 г</pre></details>
+  <details><summary>Латынь</summary><pre>Acidi folici</pre></details>
+  <details><summary>Количество</summary><pre>№30</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Tab. Acidi folici 0,001 obd. №30
+D.S. По 1 таблетке каждые 8 часов после приема пищи</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№73</span><b>Фуросемид</b></div>
+  <div class="fallback-form">инъекции</div>
+  <details><summary>Дозировка</summary><pre>1% — 2 мл</pre></details>
+  <details><summary>Латынь</summary><pre>Furosemidi</pre></details>
+  <details><summary>Количество</summary><pre>2 ml</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Furosemidi 1% — 2 ml
+D.S. Развести в 10 мл изотонического раствора натрия хлорида и ввести в/в медленно</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№74</span><b>Цианокобаламин</b></div>
+  <div class="fallback-form">раствор для инъекций</div>
+  <details><summary>Дозировка</summary><pre>0,01% — 1 мл</pre></details>
+  <details><summary>Латынь</summary><pre>Cyanocobalamini</pre></details>
+  <details><summary>Количество</summary><pre>№6; 1 ml</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Cyanocobalamini 0,01% — 1 ml
+D.t.d. №6 in amp.
+S. Вводить по 1 мл в/м 1 раз в день</pre></details>
+</article>
+<article class="fallback-card">
+  <div class="fallback-title"><span>№75</span><b>Эналаприлат</b></div>
+  <div class="fallback-form">раствор для внутривенных инъекций</div>
+  <details><summary>Дозировка</summary><pre>0,00125 г/мл</pre></details>
+  <details><summary>Латынь</summary><pre>Enalaprilati</pre></details>
+  <details><summary>Количество</summary><pre>№5; 1 ml</pre></details>
+  <details><summary>Полный рецепт</summary><pre>Rp.: Sol. Enalaprilati 0,00125 — 1 ml
+D.t.d. №5 in amp.
+S. В/в капельно в разведении, каждые 6 ч, в течение 48 ч</pre></details>
+</article>
+  </section>
+</main>
+
+<main class="app" id="app">
+  <div class="grid">
+    <aside class="panel controls">
+      <div class="label">Режим тренировки</div>
+      <select id="mode">
+        <option value="mix">Смешанный режим</option>
+        <option value="dose">Дозировка</option>
+        <option value="latin">Латынь</option>
+        <option value="quantity">Количество</option>
+        <option value="recipe">Полный рецепт</option>
+      </select>
+      <div id="doseAnswerFormatBlock" class="hidden">
+        <div class="label">Формат ответа для дозировки</div>
+        <select id="doseAnswerStyle">
+          <option value="choices">Выбор из предложенных вариантов</option>
+          <option value="manual">Вписывать вручную</option>
+        </select>
+      </div>
+      <div class="label">Как выбирать вопросы</div>
+      <select id="order">
+        <option value="weak">Сначала слабые места</option>
+        <option value="random">Случайно</option>
+        <option value="number">По порядку списка</option>
+      </select>
+      <div class="label">Фильтр</div>
+      <input id="filter" placeholder="Название, №, дозировка, латынь...">
+      <div class="row" style="margin-top:10px">
+        <button type="button" id="newCard" class="skip">Пропустить вопрос</button>
+        <button type="button" id="reset" class="resetBtn">Сброс</button>
+      </div>
+      <button type="button" id="openTable" class="ghost" style="margin-top:10px;width:100%">Открыть таблицу всех препаратов</button>
+      <div class="stats">
+        <div class="stat"><span class="small">Карточек</span><b id="statCards">75</b></div>
+        <div class="stat"><span class="small">Верно</span><b id="statGood">0</b></div>
+        <div class="stat"><span class="small">Повторить</span><b id="statBad">0</b></div>
+      </div>
+    </aside>
+
+    <section>
+      <div id="quizTab" class="panel card">
+        <div class="prompt" id="question">Загрузка...</div>
+        <div class="meta">
+          <div><span>Препарат</span><b id="drugName">—</b></div>
+          <div><span>Форма</span><b id="drugForm">—</b></div>
+          <div><span>Что спрашивается</span><b id="askType">—</b></div>
+        </div>
+        <div class="answerBox">
+          <textarea id="answer" placeholder="Введи ответ здесь"></textarea>
+          <div id="doseChoices" class="choiceGrid hidden"></div>
+        </div>
+        <div class="row" style="margin-top:10px;flex-wrap:wrap">
+          <button type="button" id="check">Проверить</button>
+          <button type="button" id="show" class="secondary">Показать ответ</button>
+          <button type="button" id="markGood" class="good">Знаю</button>
+          <button type="button" id="markBad" class="bad">Повторить</button>
+        </div>
+        <div id="result" class="result"></div>
+      </div>
+
+      <div id="tableTab" class="panel tablePanel hidden">
+        <div class="row" style="margin-bottom:10px;flex-wrap:wrap">
+          <input id="tableSearch" placeholder="Поиск по таблице...">
+          <button type="button" id="closeTable" class="secondary">Вернуться к тренировке</button>
+          <button type="button" id="print" class="ghost">Печать / PDF</button>
+        </div>
+        <div class="tableWrap">
+          <table id="dataTable">
+            <thead><tr><th>№</th><th>Препарат</th><th>Форма</th><th>Дозировка</th><th>Латынь</th><th>№/кол-во</th><th>Рецепт</th></tr></thead>
+            <tbody><tr>
+<td>1</td><td><b>Адеметионин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,4 г</b></td><td>Ademethionini</td><td>№10</td><td class="recipe">Rp.: Tab. Ademethionini 0,4 obd. №10
+D.S. 1 таблетка до обеда</td>
+</tr>
+<tr>
+<td>2</td><td><b>Азитромицин</b></td><td>таблетки</td><td><b>0,5 г</b></td><td>Azithromycini</td><td>№5</td><td class="recipe">Rp.: Tab. Azithromycini 0,5 №5
+D.S. 1 таблетка 1 раз в день 3 дня</td>
+</tr>
+<tr>
+<td>3</td><td><b>Аклидиния бромид</b></td><td>порошок для ингаляций дозированный</td><td><b>0,000322 г</b></td><td>Aclidinii bromidi</td><td>№60</td><td class="recipe">Rp.: Pulv. Aclidinii bromidi 0,000322
+D.t.d. №60
+S. Ингаляционно: 1 доза по потребности</td>
+</tr>
+<tr>
+<td>4</td><td><b>Аллопуринол</b></td><td>таблетки</td><td><b>0,1 г</b></td><td>Allopurinoli</td><td>№120</td><td class="recipe">Rp.: Tab. Allopurinoli 0,1 №120
+D.S. По 2 таблетки 2 раза в день</td>
+</tr>
+<tr>
+<td>5</td><td><b>Амиодарон</b></td><td>таблетки</td><td><b>0,2 г</b></td><td>Amiodaroni</td><td>№10</td><td class="recipe">Rp.: Tab. Amiodaroni 0,2 №10
+D.S. 1 таблетка 3 раза в день</td>
+</tr>
+<tr>
+<td>6</td><td><b>Амлодипин</b></td><td>таблетки</td><td><b>0,01 г</b></td><td>Amlodipini</td><td>№10</td><td class="recipe">Rp.: Tab. Amlodipini 0,01 №10
+D.S. По 1 таблетке 1 раз в день</td>
+</tr>
+<tr>
+<td>7</td><td><b>Амоксициллин</b></td><td>таблетки диспергируемые</td><td><b>0,5 г</b></td><td>Amoxicillini</td><td>№20</td><td class="recipe">Rp.: Tab. Amoxicillini 0,5 №20
+D.S. Внутрь по 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>8</td><td><b>Апиксабан</b></td><td>таблетки, покрытые пленочной оболочкой</td><td><b>0,005 г</b></td><td>Apixabani</td><td>№20</td><td class="recipe">Rp.: Tab. Apixabani 0,005 obd. №20
+D.S. Внутрь по 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>9</td><td><b>Аторвастатин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,02 г</b></td><td>Atorvastatini</td><td>№30</td><td class="recipe">Rp.: Tab. Atorvastatini 0,02 obd. №30
+D.S. Внутрь по 1 таблетке 1 раз в день вечером</td>
+</tr>
+<tr>
+<td>10</td><td><b>Ацетилсалициловая кислота</b></td><td>таблетки, покрытые кишечнорастворимой оболочкой</td><td><b>0,25 г</b></td><td>Acidi acetylsalicylici</td><td>№20</td><td class="recipe">Rp.: Tab. Acidi acetylsalicylici 0,25 obd. №20
+D.S. Внутрь по 1 таблетке 3 раза в день за 30 мин до еды</td>
+</tr>
+<tr>
+<td>11</td><td><b>Бисопролол</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,005 г</b></td><td>Bisoprololi</td><td>№20</td><td class="recipe">Rp.: Tab. Bisoprololi 0,005 obd. №20
+D.S. Внутрь по 1 таблетке 1 раз в день утром</td>
+</tr>
+<tr>
+<td>12</td><td><b>Будесонид/формотерол</b></td><td>порошок для ингаляций дозированный</td><td><b>0,00016 г + 0,0000045 г</b></td><td>Budesonidi + Formoteroli</td><td>№120; 2</td><td class="recipe">Rp.: Pulv. Budesonidi 0,00016
+Formoteroli 0,0000045
+D.t.d. №120
+S. По 1-2 вдоха 2-3 раза в сутки ингаляционно</td>
+</tr>
+<tr>
+<td>13</td><td><b>Валсартан</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,08 г</b></td><td>Valsartani</td><td>№28</td><td class="recipe">Rp.: Tab. Valsartani 0,08 obd. №28
+D.S. Внутрь по 1 таблетке 1 раз в сутки</td>
+</tr>
+<tr>
+<td>14</td><td><b>Варфарин</b></td><td>таблетки</td><td><b>0,0025 г</b></td><td>Warfarini</td><td>№50</td><td class="recipe">Rp.: Tab. Warfarini 0,0025 №50
+D.S. Принимать внутрь однократно, в одно и то же время суток</td>
+</tr>
+<tr>
+<td>15</td><td><b>Верапамил</b></td><td>драже</td><td><b>0,04 г</b></td><td>Verapamili</td><td>№50</td><td class="recipe">Rp.: Dragee Verapamili 0,04 №50
+D.S. По 1 драже 1 раз в день</td>
+</tr>
+<tr>
+<td>16</td><td><b>Висмута трикалия дицитрат</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,12 г</b></td><td>Bismuthi trikalii dicitratis</td><td>№30</td><td class="recipe">Rp.: Tab. Bismuthi trikalii dicitratis 0,12 obd. №30
+D.S. По 2 таблетки 2 раза в день за 30 мин до еды</td>
+</tr>
+<tr>
+<td>17</td><td><b>Гликлазид</b></td><td>таблетки с модифицированным высвобождением</td><td><b>0,08 г</b></td><td>Gliclazidi</td><td>№60</td><td class="recipe">Rp.: Tab. Gliclazidi 0,08 №60
+D.S. По 1 таблетке 2 раза в день во время еды</td>
+</tr>
+<tr>
+<td>18</td><td><b>Глюкозамина сульфат</b></td><td>порошок для приема внутрь</td><td><b>1,5 г</b></td><td>Glucosamini sulfatis</td><td>№20</td><td class="recipe">Rp.: Pulv. Glucosamini sulfatis 1,5 №20
+D.S. Содержимое 1 пакетика растворить в 200 мл воды, принимать 1 раз в сутки</td>
+</tr>
+<tr>
+<td>19</td><td><b>Дабигатран</b></td><td>капсулы</td><td><b>0,15 г</b></td><td>Dabigatrani etexilatis mesylati</td><td>№30</td><td class="recipe">Rp.: Caps. Dabigatrani etexilatis mesylati 0,15 №30
+D.S. По 1 капсуле 2 раза в день</td>
+</tr>
+<tr>
+<td>20</td><td><b>Дигоксин</b></td><td>таблетки</td><td><b>0,00025 г</b></td><td>Digoxini</td><td>№50</td><td class="recipe">Rp.: Tab. Digoxini 0,00025 №50
+D.S. По 1 таблетке утром</td>
+</tr>
+<tr>
+<td>21</td><td><b>Диклофенак</b></td><td>мазь для наружного применения</td><td><b>1% — 30,0 г</b></td><td>Diclofenaci</td><td>30,0; 3</td><td class="recipe">Rp.: Ung. Diclofenaci 1% — 30,0
+D.S. Втирать в очаги боли 2-3 раза в день</td>
+</tr>
+<tr>
+<td>22</td><td><b>Дротаверин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,04 г</b></td><td>Drotaverini</td><td>№30</td><td class="recipe">Rp.: Tab. Drotaverini 0,04 obd. №30
+D.S. По 1 таблетке 3 раза в день</td>
+</tr>
+<tr>
+<td>23</td><td><b>Железа сульфат</b></td><td>драже</td><td><b>0,32 г</b></td><td>Ferri sulfatis</td><td>№30</td><td class="recipe">Rp.: Dragee Ferri sulfatis 0,32 №30
+D.S. По 1 драже 2 раза в день после еды</td>
+</tr>
+<tr>
+<td>24</td><td><b>Железа (III) гидроксид полимальтозат</b></td><td>таблетки жевательные</td><td><b>0,1 г</b></td><td>Ferri (III) hydroxydi polymaltosati</td><td>№30</td><td class="recipe">Rp.: Tab. Ferri (III) hydroxydi polymaltosati 0,1 №30
+D.S. Принимать по 1 таблетке 2 раза в сутки</td>
+</tr>
+<tr>
+<td>25</td><td><b>Железа (III) гидроксид сахарозный комплекс</b></td><td>раствор для внутривенного введения</td><td><b>10% — 5 мл</b></td><td>Ferrici (III) hydroxydi saccharati</td><td>5 ml</td><td class="recipe">Rp.: Sol. Ferrici (III) hydroxydi saccharati 10% — 5 ml
+D.S. В/в медленно</td>
+</tr>
+<tr>
+<td>26</td><td><b>Зафирлукаст</b></td><td>таблетки, покрытые пленочной оболочкой</td><td><b>0,02 г</b></td><td>Zafirlukasti</td><td>№30</td><td class="recipe">Rp.: Tab. Zafirlukasti 0,02 obd. №30
+D.S. По 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>27</td><td><b>Ивабрадин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,005 г</b></td><td>Ivabradini</td><td>№30</td><td class="recipe">Rp.: Tab. Ivabradini 0,005 obd. №30
+D.S. По 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>28</td><td><b>Изосорбид мононитрат</b></td><td>таблетки</td><td><b>0,02 г</b></td><td>Isosorbidi mononitrati</td><td>№30</td><td class="recipe">Rp.: Tab. Isosorbidi mononitrati 0,02 №30
+D.S. По 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>29</td><td><b>Индапамид</b></td><td>таблетки</td><td><b>0,0025 г</b></td><td>Indapamidi</td><td>№30</td><td class="recipe">Rp.: Tab. Indapamidi 0,0025 №30
+D.S. По 1 таблетке утром</td>
+</tr>
+<tr>
+<td>30</td><td><b>Ипратропия бромид</b></td><td>ампулы для небулайзерной терапии</td><td><b>0,025% — 20 мл</b></td><td>Ipratropii bromidi</td><td>№1; 20 ml; 4</td><td class="recipe">Rp.: Sol. Ipratropii bromidi 0,025% — 20 ml
+D.t.d. №1 in amp.
+S. По 2,0 мл 3-4 раза в сутки через небулайзер</td>
+</tr>
+<tr>
+<td>31</td><td><b>Кандесартан</b></td><td>таблетки</td><td><b>0,016 г</b></td><td>Candesartani</td><td>№28</td><td class="recipe">Rp.: Tab. Candesartani 0,016 №28
+D.S. По 1 таблетке в день</td>
+</tr>
+<tr>
+<td>32</td><td><b>Каптоприл</b></td><td>таблетки</td><td><b>0,025 г</b></td><td>Captoprili</td><td>№50</td><td class="recipe">Rp.: Tab. Captoprili 0,025 №50
+D.S. По 1 таблетке 2 раза в день за час до еды</td>
+</tr>
+<tr>
+<td>33</td><td><b>Кларитромицин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,5 г</b></td><td>Clarithromycini</td><td>№14</td><td class="recipe">Rp.: Tab. Clarithromycini 0,5 obd. №14
+D.S. По 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>34</td><td><b>Клопидогрел</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,075 г</b></td><td>Clopidogreli</td><td>№14</td><td class="recipe">Rp.: Tab. Clopidogreli 0,075 obd. №14
+D.S. По 1 таблетке 1 раз в день</td>
+</tr>
+<tr>
+<td>35</td><td><b>Лактулоза</b></td><td>сироп</td><td><b>66,7% — 500 мл</b></td><td>Lactulosi</td><td>500 ml</td><td class="recipe">Rp.: Sir. Lactulosi 66,7% — 500 ml
+D.S. Внутрь по 15 мл 1 раз в день во время еды</td>
+</tr>
+<tr>
+<td>36</td><td><b>Левофлоксацин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,5 г</b></td><td>Levofloxacini</td><td>№10</td><td class="recipe">Rp.: Tab. Levofloxacini 0,5 obd. №10
+D.S. По 1 таблетке 1 раз в сутки за 1 час до еды</td>
+</tr>
+<tr>
+<td>37</td><td><b>Лизиноприл</b></td><td>таблетки</td><td><b>0,01 г</b></td><td>Lisinoprili</td><td>№30</td><td class="recipe">Rp.: Tab. Lisinoprili 0,01 №30
+D.S. По 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>38</td><td><b>Лоперамид</b></td><td>капсулы</td><td><b>0,002 г</b></td><td>Loperamidi</td><td>№10</td><td class="recipe">Rp.: Caps. Loperamidi 0,002 №10
+D.S. По 2 капсулы 2 раза в день</td>
+</tr>
+<tr>
+<td>39</td><td><b>Магния сульфат</b></td><td>раствор для внутримышечных введений</td><td><b>25% — 10 мл</b></td><td>Magnesii sulfatis</td><td>№10; 10 ml</td><td class="recipe">Rp.: Sol. Magnesii sulfatis 25% — 10 ml
+D.t.d. №10 in amp.
+S. В/в медленно</td>
+</tr>
+<tr>
+<td>40</td><td><b>Мебеверин</b></td><td>таблетки</td><td><b>0,2 г</b></td><td>Mebeverini</td><td>№10</td><td class="recipe">Rp.: Tab. Mebeverini 0,2 №10
+D.S. По 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>41</td><td><b>Мелоксикам</b></td><td>раствор для инъекций</td><td><b>1% — 1,5 мл</b></td><td>Meloxicami</td><td>№10; 1,5 ml</td><td class="recipe">Rp.: Sol. Meloxicami 1% — 1,5 ml
+D.t.d. №10 in amp.
+S. В/м</td>
+</tr>
+<tr>
+<td>42</td><td><b>Месалазин</b></td><td>суппозитории ректальные</td><td><b>0,5 г</b></td><td>Mesalazini</td><td>№30</td><td class="recipe">Rp.: Supp. Mesalazini 0,5 №30
+D.S. По 1 свече 1 раз в день перед сном</td>
+</tr>
+<tr>
+<td>43</td><td><b>Метопролол сукцинат</b></td><td>таблетки</td><td><b>0,095 г</b></td><td>Metoprololi succinatis</td><td>№20</td><td class="recipe">Rp.: Tab. Metoprololi succinatis 0,095 №20
+D.S. По 1 таблетке 1 раз в день</td>
+</tr>
+<tr>
+<td>44</td><td><b>Метотрексат</b></td><td>раствор для подкожного введения</td><td><b>2% — 1 мл</b></td><td>Methotrexati</td><td>№10; 1 ml</td><td class="recipe">Rp.: Sol. Methotrexati 2% — 1 ml
+D.t.d. №10 in amp.
+S. П/к 1 раз в неделю</td>
+</tr>
+<tr>
+<td>45</td><td><b>Метронидазол</b></td><td>таблетки</td><td><b>0,25 г</b></td><td>Metronidazoli</td><td>№10; 5</td><td class="recipe">Rp.: Tab. Metronidazoli 0,25 №10
+D.S. По 1 таблетке 2 раза в день — 5 дней</td>
+</tr>
+<tr>
+<td>46</td><td><b>Метформин</b></td><td>таблетки пролонгированного действия</td><td><b>0,5 г</b></td><td>Metformini</td><td>№100</td><td class="recipe">Rp.: Tab. Metformini 0,5 №100
+D.S. По 1 таблетке 2 раза в день во время или после еды</td>
+</tr>
+<tr>
+<td>47</td><td><b>Моксифлоксацин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,4 г</b></td><td>Moxifloxacini</td><td>№10</td><td class="recipe">Rp.: Tab. Moxifloxacini 0,4 obd. №10
+D.S. Внутрь по 1 таблетке 1 раз в сутки</td>
+</tr>
+<tr>
+<td>48</td><td><b>Моксонидин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,0002 г</b></td><td>Moxonidini</td><td>№20</td><td class="recipe">Rp.: Tab. Moxonidini 0,0002 obd. №20
+D.S. По 1 таблетке 1 раз в день</td>
+</tr>
+<tr>
+<td>49</td><td><b>Нитроглицерин</b></td><td>таблетки или аэрозоль подъязычный</td><td><b>0,0005 г / 0,0004 г/доза</b></td><td>Nitroglycerini</td><td>№20; 10,0; 2 доз</td><td class="recipe">Rp.: Tab. Nitroglycerini 0,0005 №20
+D.S. По 1 таблетке под язык.
+Rp.: Aer. Nitroglycerini 0,0004/d — 10,0
+D.S. По 1-2 дозы на или под язык для купирования приступа стенокардии</td>
+</tr>
+<tr>
+<td>50</td><td><b>Норфлоксацин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,4 г</b></td><td>Norfloxacini</td><td>№20</td><td class="recipe">Rp.: Tab. Norfloxacini 0,4 obd. №20
+D.S. По 1 таблетке 2 раза в сутки</td>
+</tr>
+<tr>
+<td>51</td><td><b>Озельтамивир</b></td><td>капсулы</td><td><b>0,075 г</b></td><td>Oseltamiviri</td><td>№10</td><td class="recipe">Rp.: Caps. Oseltamiviri 0,075 №10
+D.S. Принимать по 1 капсуле 2 раза в сутки</td>
+</tr>
+<tr>
+<td>52</td><td><b>Омепразол</b></td><td>капсулы</td><td><b>0,02 г</b></td><td>Omeprazoli</td><td>№20</td><td class="recipe">Rp.: Caps. Omeprazoli 0,02 №20
+D.S. Внутрь по 1 капсуле натощак за 30 мин до еды 1 раз в день</td>
+</tr>
+<tr>
+<td>53</td><td><b>Панкреатин</b></td><td>капсулы</td><td><b>25000 ЕД</b></td><td>Pancreatini</td><td>№60</td><td class="recipe">Rp.: Caps. Pancreatini 25000 ЕД №60
+D.S. Внутрь по 1 капсуле во время еды, запивая водой</td>
+</tr>
+<tr>
+<td>54</td><td><b>Парацетамол</b></td><td>таблетки</td><td><b>0,5 г</b></td><td>Paracetamoli</td><td>№20</td><td class="recipe">Rp.: Tab. Paracetamoli 0,5 №20
+D.S. Внутрь по 1 таблетке при повышении температуры выше 38,5 °C</td>
+</tr>
+<tr>
+<td>55</td><td><b>Периндоприл</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,004 г</b></td><td>Perindoprili</td><td>№10</td><td class="recipe">Rp.: Tab. Perindoprili 0,004 obd. №10
+D.S. По 1 таблетке 1 раз в день</td>
+</tr>
+<tr>
+<td>56</td><td><b>Преднизолон</b></td><td>таблетки</td><td><b>0,005 г</b></td><td>Prednisoloni</td><td>№60</td><td class="recipe">Rp.: Tab. Prednisoloni 0,005 №60
+D.S. Внутрь: 3 таблетки в 7 ч, 2 таблетки в 11 ч, 1 таблетка в 13 ч</td>
+</tr>
+<tr>
+<td>57</td><td><b>Рабепразол</b></td><td>капсулы</td><td><b>0,02 г</b></td><td>Rabeprazoli</td><td>№20</td><td class="recipe">Rp.: Caps. Rabeprazoli 0,02 №20
+D.S. Внутрь по 1 капсуле 1 раз в сутки</td>
+</tr>
+<tr>
+<td>58</td><td><b>Рамиприл</b></td><td>таблетки</td><td><b>0,01 г</b></td><td>Ramiprili</td><td>№50</td><td class="recipe">Rp.: Tab. Ramiprili 0,01 №50
+D.S. По 1 таблетке 2 раза в день</td>
+</tr>
+<tr>
+<td>59</td><td><b>Розувастатин</b></td><td>таблетки, покрытые оболочкой</td><td><b>0,01 г</b></td><td>Rosuvastatini</td><td>№30</td><td class="recipe">Rp.: Tab. Rosuvastatini 0,01 obd. №30
+D.S. По 1 таблетке 1 раз в день</td>
+</tr>
+<tr>
+<td>60</td><td><b>Саксаглиптин</b></td><td>таблетки, покрытые пленочной оболочкой</td><td><b>0,0025 г</b></td><td>Saxagliptini</td><td>№30</td><td class="recipe">Rp.: Tab. Saxagliptini 0,0025 obd. №30
+D.S. Внутрь независимо от приема пищи 1 раз в сутки</td>
+</tr>
+<tr>
+<td>61</td><td><b>Сальметерол</b></td><td>порошок для ингаляций дозированный</td><td><b>0,000025 г/доза</b></td><td>Salmeteroli</td><td>—</td><td class="recipe">Rp.: Pulv. Salmeteroli 0,000025/dosis
+D.S. Ингаляционно по назначенной схеме</td>
+</tr>
+<tr>
+<td>62</td><td><b>Сальбутамол</b></td><td>аэрозоль для ингаляций дозированный</td><td><b>0,0001 г/доза</b></td><td>Salbutamoli</td><td>№200; 4</td><td class="recipe">Rp.: Aer. Salbutamoli 0,0001/dosis №200
+D.S. По 1 ингаляции 3-4 раза в день при обострении бронхиальной астмы</td>
+</tr>
+<tr>
+<td>63</td><td><b>Симетикон</b></td><td>капсулы</td><td><b>0,04 г</b></td><td>Simethiconi</td><td>№25</td><td class="recipe">Rp.: Caps. Simethiconi 0,04 №25
+D.S. По 1 капсуле 3 раза в сутки</td>
+</tr>
+<tr>
+<td>64</td><td><b>Смектит диоктаэдрический</b></td><td>порошок для приготовления суспензии для приема внутрь</td><td><b>3,0 г</b></td><td>Smectiti dioctaedrici</td><td>№30</td><td class="recipe">Rp.: Pulv. Smectiti dioctaedrici 3,0 №30
+D.S. По 1 пакетику 1 раз в сутки</td>
+</tr>
+<tr>
+<td>65</td><td><b>Спиронолактон</b></td><td>таблетки</td><td><b>0,025 г</b></td><td>Spironolactoni</td><td>№20</td><td class="recipe">Rp.: Tab. Spironolactoni 0,025 №20
+D.S. По 1 таблетке утром внутрь</td>
+</tr>
+<tr>
+<td>66</td><td><b>Тиотропия бромид</b></td><td>капсулы с порошком для ингаляций</td><td><b>0,000018 г</b></td><td>Tiotropii bromidi</td><td>№30</td><td class="recipe">Rp.: Caps. Tiotropii bromidi 0,000018 №30
+D.S. Для ингаляций через аэролайзер по 1 капсуле 1 раз в сутки</td>
+</tr>
+<tr>
+<td>67</td><td><b>Торасемид</b></td><td>таблетки</td><td><b>0,01 г</b></td><td>Torasemidi</td><td>№20</td><td class="recipe">Rp.: Tab. Torasemidi 0,01 №20
+D.S. По 1 таблетке 1 раз в сутки утром</td>
+</tr>
+<tr>
+<td>68</td><td><b>Урсодезоксихолевая кислота</b></td><td>капсулы</td><td><b>0,25 г</b></td><td>Acidi ursodeoxycholici</td><td>№50</td><td class="recipe">Rp.: Caps. Acidi ursodeoxycholici 0,25 №50
+D.S. По 2 капсулы на ночь</td>
+</tr>
+<tr>
+<td>69</td><td><b>Фамотидин</b></td><td>раствор для инъекций</td><td><b>0,02 г</b></td><td>Famotidini</td><td>№5</td><td class="recipe">Rp.: Sol. Famotidini 0,02
+D.t.d. №5 in flac.
+S. Внутривенно капельно</td>
+</tr>
+<tr>
+<td>70</td><td><b>Фенофибрат</b></td><td>капсулы пролонгированного действия</td><td><b>0,25 г</b></td><td>Fenofibrati retardi</td><td>№30</td><td class="recipe">Rp.: Caps. Fenofibrati retardi 0,25 №30
+D.S. Внутрь 1 раз в сутки</td>
+</tr>
+<tr>
+<td>71</td><td><b>Флутиказон</b></td><td>порошок для ингаляций дозированный</td><td><b>125 мкг</b></td><td>Fluticasoni propionatis</td><td>№60</td><td class="recipe">Rp.: Fluticasoni propionatis 125 mcg
+D.t.d. №60
+S. Ингаляционно по 2 дозы 2 раза в день</td>
+</tr>
+<tr>
+<td>72</td><td><b>Фолиевая кислота</b></td><td>таблетки, покрытые пленочной оболочкой</td><td><b>0,001 г</b></td><td>Acidi folici</td><td>№30</td><td class="recipe">Rp.: Tab. Acidi folici 0,001 obd. №30
+D.S. По 1 таблетке каждые 8 часов после приема пищи</td>
+</tr>
+<tr>
+<td>73</td><td><b>Фуросемид</b></td><td>инъекции</td><td><b>1% — 2 мл</b></td><td>Furosemidi</td><td>2 ml</td><td class="recipe">Rp.: Sol. Furosemidi 1% — 2 ml
+D.S. Развести в 10 мл изотонического раствора натрия хлорида и ввести в/в медленно</td>
+</tr>
+<tr>
+<td>74</td><td><b>Цианокобаламин</b></td><td>раствор для инъекций</td><td><b>0,01% — 1 мл</b></td><td>Cyanocobalamini</td><td>№6; 1 ml</td><td class="recipe">Rp.: Sol. Cyanocobalamini 0,01% — 1 ml
+D.t.d. №6 in amp.
+S. Вводить по 1 мл в/м 1 раз в день</td>
+</tr>
+<tr>
+<td>75</td><td><b>Эналаприлат</b></td><td>раствор для внутривенных инъекций</td><td><b>0,00125 г/мл</b></td><td>Enalaprilati</td><td>№5; 1 ml</td><td class="recipe">Rp.: Sol. Enalaprilati 0,00125 — 1 ml
+D.t.d. №5 in amp.
+S. В/в капельно в разведении, каждые 6 ч, в течение 48 ч</td>
+</tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  function initTelegramMiniApp() {
+    var tg = window.Telegram && window.Telegram.WebApp;
+    if (!tg) return;
+    try {
+      tg.ready();
+      tg.expand();
+      document.documentElement.classList.add('telegram-mini-app');
+      var theme = tg.themeParams || {};
+      if (theme.bg_color) document.documentElement.style.setProperty('--bg', theme.bg_color);
+      if (theme.text_color) document.documentElement.style.setProperty('--text', theme.text_color);
+      if (theme.button_color) document.documentElement.style.setProperty('--accent', theme.button_color);
+      if (theme.button_text_color) document.documentElement.style.setProperty('--buttonText', theme.button_text_color);
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTelegramMiniApp);
+  } else {
+    initTelegramMiniApp();
+  }
+})();
+</script>
+
+<script>
+(function() {
+'use strict';
+var DATA = [{"id": 1, "name": "Адеметионин", "form": "таблетки, покрытые оболочкой", "dose": "0,4 г", "recipe": "Rp.: Tab. Ademethionini 0,4 obd. №10\nD.S. 1 таблетка до обеда", "rp": "Rp.: Tab. Ademethionini 0,4 obd. №10", "latin": "Ademethionini", "sig": "D.S. 1 таблетка до обеда", "quantity": "№10"}, {"id": 2, "name": "Азитромицин", "form": "таблетки", "dose": "0,5 г", "recipe": "Rp.: Tab. Azithromycini 0,5 №5\nD.S. 1 таблетка 1 раз в день 3 дня", "rp": "Rp.: Tab. Azithromycini 0,5 №5", "latin": "Azithromycini", "sig": "D.S. 1 таблетка 1 раз в день 3 дня", "quantity": "№5"}, {"id": 3, "name": "Аклидиния бромид", "form": "порошок для ингаляций дозированный", "dose": "0,000322 г", "recipe": "Rp.: Pulv. Aclidinii bromidi 0,000322\nD.t.d. №60\nS. Ингаляционно: 1 доза по потребности", "rp": "Rp.: Pulv. Aclidinii bromidi 0,000322\nD.t.d. №60", "latin": "Aclidinii bromidi", "sig": "S. Ингаляционно: 1 доза по потребности", "quantity": "№60"}, {"id": 4, "name": "Аллопуринол", "form": "таблетки", "dose": "0,1 г", "recipe": "Rp.: Tab. Allopurinoli 0,1 №120\nD.S. По 2 таблетки 2 раза в день", "rp": "Rp.: Tab. Allopurinoli 0,1 №120", "latin": "Allopurinoli", "sig": "D.S. По 2 таблетки 2 раза в день", "quantity": "№120"}, {"id": 5, "name": "Амиодарон", "form": "таблетки", "dose": "0,2 г", "recipe": "Rp.: Tab. Amiodaroni 0,2 №10\nD.S. 1 таблетка 3 раза в день", "rp": "Rp.: Tab. Amiodaroni 0,2 №10", "latin": "Amiodaroni", "sig": "D.S. 1 таблетка 3 раза в день", "quantity": "№10"}, {"id": 6, "name": "Амлодипин", "form": "таблетки", "dose": "0,01 г", "recipe": "Rp.: Tab. Amlodipini 0,01 №10\nD.S. По 1 таблетке 1 раз в день", "rp": "Rp.: Tab. Amlodipini 0,01 №10", "latin": "Amlodipini", "sig": "D.S. По 1 таблетке 1 раз в день", "quantity": "№10"}, {"id": 7, "name": "Амоксициллин", "form": "таблетки диспергируемые", "dose": "0,5 г", "recipe": "Rp.: Tab. Amoxicillini 0,5 №20\nD.S. Внутрь по 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Amoxicillini 0,5 №20", "latin": "Amoxicillini", "sig": "D.S. Внутрь по 1 таблетке 2 раза в день", "quantity": "№20"}, {"id": 8, "name": "Апиксабан", "form": "таблетки, покрытые пленочной оболочкой", "dose": "0,005 г", "recipe": "Rp.: Tab. Apixabani 0,005 obd. №20\nD.S. Внутрь по 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Apixabani 0,005 obd. №20", "latin": "Apixabani", "sig": "D.S. Внутрь по 1 таблетке 2 раза в день", "quantity": "№20"}, {"id": 9, "name": "Аторвастатин", "form": "таблетки, покрытые оболочкой", "dose": "0,02 г", "recipe": "Rp.: Tab. Atorvastatini 0,02 obd. №30\nD.S. Внутрь по 1 таблетке 1 раз в день вечером", "rp": "Rp.: Tab. Atorvastatini 0,02 obd. №30", "latin": "Atorvastatini", "sig": "D.S. Внутрь по 1 таблетке 1 раз в день вечером", "quantity": "№30"}, {"id": 10, "name": "Ацетилсалициловая кислота", "form": "таблетки, покрытые кишечнорастворимой оболочкой", "dose": "0,25 г", "recipe": "Rp.: Tab. Acidi acetylsalicylici 0,25 obd. №20\nD.S. Внутрь по 1 таблетке 3 раза в день за 30 мин до еды", "rp": "Rp.: Tab. Acidi acetylsalicylici 0,25 obd. №20", "latin": "Acidi acetylsalicylici", "sig": "D.S. Внутрь по 1 таблетке 3 раза в день за 30 мин до еды", "quantity": "№20"}, {"id": 11, "name": "Бисопролол", "form": "таблетки, покрытые оболочкой", "dose": "0,005 г", "recipe": "Rp.: Tab. Bisoprololi 0,005 obd. №20\nD.S. Внутрь по 1 таблетке 1 раз в день утром", "rp": "Rp.: Tab. Bisoprololi 0,005 obd. №20", "latin": "Bisoprololi", "sig": "D.S. Внутрь по 1 таблетке 1 раз в день утром", "quantity": "№20"}, {"id": 12, "name": "Будесонид/формотерол", "form": "порошок для ингаляций дозированный", "dose": "0,00016 г + 0,0000045 г", "recipe": "Rp.: Pulv. Budesonidi 0,00016\nFormoteroli 0,0000045\nD.t.d. №120\nS. По 1-2 вдоха 2-3 раза в сутки ингаляционно", "rp": "Rp.: Pulv. Budesonidi 0,00016\nFormoteroli 0,0000045\nD.t.d. №120", "latin": "Budesonidi + Formoteroli", "sig": "S. По 1-2 вдоха 2-3 раза в сутки ингаляционно", "quantity": "№120; 2"}, {"id": 13, "name": "Валсартан", "form": "таблетки, покрытые оболочкой", "dose": "0,08 г", "recipe": "Rp.: Tab. Valsartani 0,08 obd. №28\nD.S. Внутрь по 1 таблетке 1 раз в сутки", "rp": "Rp.: Tab. Valsartani 0,08 obd. №28", "latin": "Valsartani", "sig": "D.S. Внутрь по 1 таблетке 1 раз в сутки", "quantity": "№28"}, {"id": 14, "name": "Варфарин", "form": "таблетки", "dose": "0,0025 г", "recipe": "Rp.: Tab. Warfarini 0,0025 №50\nD.S. Принимать внутрь однократно, в одно и то же время суток", "rp": "Rp.: Tab. Warfarini 0,0025 №50", "latin": "Warfarini", "sig": "D.S. Принимать внутрь однократно, в одно и то же время суток", "quantity": "№50"}, {"id": 15, "name": "Верапамил", "form": "драже", "dose": "0,04 г", "recipe": "Rp.: Dragee Verapamili 0,04 №50\nD.S. По 1 драже 1 раз в день", "rp": "Rp.: Dragee Verapamili 0,04 №50", "latin": "Verapamili", "sig": "D.S. По 1 драже 1 раз в день", "quantity": "№50"}, {"id": 16, "name": "Висмута трикалия дицитрат", "form": "таблетки, покрытые оболочкой", "dose": "0,12 г", "recipe": "Rp.: Tab. Bismuthi trikalii dicitratis 0,12 obd. №30\nD.S. По 2 таблетки 2 раза в день за 30 мин до еды", "rp": "Rp.: Tab. Bismuthi trikalii dicitratis 0,12 obd. №30", "latin": "Bismuthi trikalii dicitratis", "sig": "D.S. По 2 таблетки 2 раза в день за 30 мин до еды", "quantity": "№30"}, {"id": 17, "name": "Гликлазид", "form": "таблетки с модифицированным высвобождением", "dose": "0,08 г", "recipe": "Rp.: Tab. Gliclazidi 0,08 №60\nD.S. По 1 таблетке 2 раза в день во время еды", "rp": "Rp.: Tab. Gliclazidi 0,08 №60", "latin": "Gliclazidi", "sig": "D.S. По 1 таблетке 2 раза в день во время еды", "quantity": "№60"}, {"id": 18, "name": "Глюкозамина сульфат", "form": "порошок для приема внутрь", "dose": "1,5 г", "recipe": "Rp.: Pulv. Glucosamini sulfatis 1,5 №20\nD.S. Содержимое 1 пакетика растворить в 200 мл воды, принимать 1 раз в сутки", "rp": "Rp.: Pulv. Glucosamini sulfatis 1,5 №20", "latin": "Glucosamini sulfatis", "sig": "D.S. Содержимое 1 пакетика растворить в 200 мл воды, принимать 1 раз в сутки", "quantity": "№20"}, {"id": 19, "name": "Дабигатран", "form": "капсулы", "dose": "0,15 г", "recipe": "Rp.: Caps. Dabigatrani etexilatis mesylati 0,15 №30\nD.S. По 1 капсуле 2 раза в день", "rp": "Rp.: Caps. Dabigatrani etexilatis mesylati 0,15 №30", "latin": "Dabigatrani etexilatis mesylati", "sig": "D.S. По 1 капсуле 2 раза в день", "quantity": "№30"}, {"id": 20, "name": "Дигоксин", "form": "таблетки", "dose": "0,00025 г", "recipe": "Rp.: Tab. Digoxini 0,00025 №50\nD.S. По 1 таблетке утром", "rp": "Rp.: Tab. Digoxini 0,00025 №50", "latin": "Digoxini", "sig": "D.S. По 1 таблетке утром", "quantity": "№50"}, {"id": 21, "name": "Диклофенак", "form": "мазь для наружного применения", "dose": "1% — 30,0 г", "recipe": "Rp.: Ung. Diclofenaci 1% — 30,0\nD.S. Втирать в очаги боли 2-3 раза в день", "rp": "Rp.: Ung. Diclofenaci 1% — 30,0", "latin": "Diclofenaci", "sig": "D.S. Втирать в очаги боли 2-3 раза в день", "quantity": "30,0; 3"}, {"id": 22, "name": "Дротаверин", "form": "таблетки, покрытые оболочкой", "dose": "0,04 г", "recipe": "Rp.: Tab. Drotaverini 0,04 obd. №30\nD.S. По 1 таблетке 3 раза в день", "rp": "Rp.: Tab. Drotaverini 0,04 obd. №30", "latin": "Drotaverini", "sig": "D.S. По 1 таблетке 3 раза в день", "quantity": "№30"}, {"id": 23, "name": "Железа сульфат", "form": "драже", "dose": "0,32 г", "recipe": "Rp.: Dragee Ferri sulfatis 0,32 №30\nD.S. По 1 драже 2 раза в день после еды", "rp": "Rp.: Dragee Ferri sulfatis 0,32 №30", "latin": "Ferri sulfatis", "sig": "D.S. По 1 драже 2 раза в день после еды", "quantity": "№30"}, {"id": 24, "name": "Железа (III) гидроксид полимальтозат", "form": "таблетки жевательные", "dose": "0,1 г", "recipe": "Rp.: Tab. Ferri (III) hydroxydi polymaltosati 0,1 №30\nD.S. Принимать по 1 таблетке 2 раза в сутки", "rp": "Rp.: Tab. Ferri (III) hydroxydi polymaltosati 0,1 №30", "latin": "Ferri (III) hydroxydi polymaltosati", "sig": "D.S. Принимать по 1 таблетке 2 раза в сутки", "quantity": "№30"}, {"id": 25, "name": "Железа (III) гидроксид сахарозный комплекс", "form": "раствор для внутривенного введения", "dose": "10% — 5 мл", "recipe": "Rp.: Sol. Ferrici (III) hydroxydi saccharati 10% — 5 ml\nD.S. В/в медленно", "rp": "Rp.: Sol. Ferrici (III) hydroxydi saccharati 10% — 5 ml", "latin": "Ferrici (III) hydroxydi saccharati", "sig": "D.S. В/в медленно", "quantity": "5 ml"}, {"id": 26, "name": "Зафирлукаст", "form": "таблетки, покрытые пленочной оболочкой", "dose": "0,02 г", "recipe": "Rp.: Tab. Zafirlukasti 0,02 obd. №30\nD.S. По 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Zafirlukasti 0,02 obd. №30", "latin": "Zafirlukasti", "sig": "D.S. По 1 таблетке 2 раза в день", "quantity": "№30"}, {"id": 27, "name": "Ивабрадин", "form": "таблетки, покрытые оболочкой", "dose": "0,005 г", "recipe": "Rp.: Tab. Ivabradini 0,005 obd. №30\nD.S. По 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Ivabradini 0,005 obd. №30", "latin": "Ivabradini", "sig": "D.S. По 1 таблетке 2 раза в день", "quantity": "№30"}, {"id": 28, "name": "Изосорбид мононитрат", "form": "таблетки", "dose": "0,02 г", "recipe": "Rp.: Tab. Isosorbidi mononitrati 0,02 №30\nD.S. По 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Isosorbidi mononitrati 0,02 №30", "latin": "Isosorbidi mononitrati", "sig": "D.S. По 1 таблетке 2 раза в день", "quantity": "№30"}, {"id": 29, "name": "Индапамид", "form": "таблетки", "dose": "0,0025 г", "recipe": "Rp.: Tab. Indapamidi 0,0025 №30\nD.S. По 1 таблетке утром", "rp": "Rp.: Tab. Indapamidi 0,0025 №30", "latin": "Indapamidi", "sig": "D.S. По 1 таблетке утром", "quantity": "№30"}, {"id": 30, "name": "Ипратропия бромид", "form": "ампулы для небулайзерной терапии", "dose": "0,025% — 20 мл", "recipe": "Rp.: Sol. Ipratropii bromidi 0,025% — 20 ml\nD.t.d. №1 in amp.\nS. По 2,0 мл 3-4 раза в сутки через небулайзер", "rp": "Rp.: Sol. Ipratropii bromidi 0,025% — 20 ml\nD.t.d. №1 in amp.", "latin": "Ipratropii bromidi", "sig": "S. По 2,0 мл 3-4 раза в сутки через небулайзер", "quantity": "№1; 20 ml; 4"}, {"id": 31, "name": "Кандесартан", "form": "таблетки", "dose": "0,016 г", "recipe": "Rp.: Tab. Candesartani 0,016 №28\nD.S. По 1 таблетке в день", "rp": "Rp.: Tab. Candesartani 0,016 №28", "latin": "Candesartani", "sig": "D.S. По 1 таблетке в день", "quantity": "№28"}, {"id": 32, "name": "Каптоприл", "form": "таблетки", "dose": "0,025 г", "recipe": "Rp.: Tab. Captoprili 0,025 №50\nD.S. По 1 таблетке 2 раза в день за час до еды", "rp": "Rp.: Tab. Captoprili 0,025 №50", "latin": "Captoprili", "sig": "D.S. По 1 таблетке 2 раза в день за час до еды", "quantity": "№50"}, {"id": 33, "name": "Кларитромицин", "form": "таблетки, покрытые оболочкой", "dose": "0,5 г", "recipe": "Rp.: Tab. Clarithromycini 0,5 obd. №14\nD.S. По 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Clarithromycini 0,5 obd. №14", "latin": "Clarithromycini", "sig": "D.S. По 1 таблетке 2 раза в день", "quantity": "№14"}, {"id": 34, "name": "Клопидогрел", "form": "таблетки, покрытые оболочкой", "dose": "0,075 г", "recipe": "Rp.: Tab. Clopidogreli 0,075 obd. №14\nD.S. По 1 таблетке 1 раз в день", "rp": "Rp.: Tab. Clopidogreli 0,075 obd. №14", "latin": "Clopidogreli", "sig": "D.S. По 1 таблетке 1 раз в день", "quantity": "№14"}, {"id": 35, "name": "Лактулоза", "form": "сироп", "dose": "66,7% — 500 мл", "recipe": "Rp.: Sir. Lactulosi 66,7% — 500 ml\nD.S. Внутрь по 15 мл 1 раз в день во время еды", "rp": "Rp.: Sir. Lactulosi 66,7% — 500 ml", "latin": "Lactulosi", "sig": "D.S. Внутрь по 15 мл 1 раз в день во время еды", "quantity": "500 ml"}, {"id": 36, "name": "Левофлоксацин", "form": "таблетки, покрытые оболочкой", "dose": "0,5 г", "recipe": "Rp.: Tab. Levofloxacini 0,5 obd. №10\nD.S. По 1 таблетке 1 раз в сутки за 1 час до еды", "rp": "Rp.: Tab. Levofloxacini 0,5 obd. №10", "latin": "Levofloxacini", "sig": "D.S. По 1 таблетке 1 раз в сутки за 1 час до еды", "quantity": "№10"}, {"id": 37, "name": "Лизиноприл", "form": "таблетки", "dose": "0,01 г", "recipe": "Rp.: Tab. Lisinoprili 0,01 №30\nD.S. По 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Lisinoprili 0,01 №30", "latin": "Lisinoprili", "sig": "D.S. По 1 таблетке 2 раза в день", "quantity": "№30"}, {"id": 38, "name": "Лоперамид", "form": "капсулы", "dose": "0,002 г", "recipe": "Rp.: Caps. Loperamidi 0,002 №10\nD.S. По 2 капсулы 2 раза в день", "rp": "Rp.: Caps. Loperamidi 0,002 №10", "latin": "Loperamidi", "sig": "D.S. По 2 капсулы 2 раза в день", "quantity": "№10"}, {"id": 39, "name": "Магния сульфат", "form": "раствор для внутримышечных введений", "dose": "25% — 10 мл", "recipe": "Rp.: Sol. Magnesii sulfatis 25% — 10 ml\nD.t.d. №10 in amp.\nS. В/в медленно", "rp": "Rp.: Sol. Magnesii sulfatis 25% — 10 ml\nD.t.d. №10 in amp.", "latin": "Magnesii sulfatis", "sig": "S. В/в медленно", "quantity": "№10; 10 ml"}, {"id": 40, "name": "Мебеверин", "form": "таблетки", "dose": "0,2 г", "recipe": "Rp.: Tab. Mebeverini 0,2 №10\nD.S. По 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Mebeverini 0,2 №10", "latin": "Mebeverini", "sig": "D.S. По 1 таблетке 2 раза в день", "quantity": "№10"}, {"id": 41, "name": "Мелоксикам", "form": "раствор для инъекций", "dose": "1% — 1,5 мл", "recipe": "Rp.: Sol. Meloxicami 1% — 1,5 ml\nD.t.d. №10 in amp.\nS. В/м", "rp": "Rp.: Sol. Meloxicami 1% — 1,5 ml\nD.t.d. №10 in amp.", "latin": "Meloxicami", "sig": "S. В/м", "quantity": "№10; 1,5 ml"}, {"id": 42, "name": "Месалазин", "form": "суппозитории ректальные", "dose": "0,5 г", "recipe": "Rp.: Supp. Mesalazini 0,5 №30\nD.S. По 1 свече 1 раз в день перед сном", "rp": "Rp.: Supp. Mesalazini 0,5 №30", "latin": "Mesalazini", "sig": "D.S. По 1 свече 1 раз в день перед сном", "quantity": "№30"}, {"id": 43, "name": "Метопролол сукцинат", "form": "таблетки", "dose": "0,095 г", "recipe": "Rp.: Tab. Metoprololi succinatis 0,095 №20\nD.S. По 1 таблетке 1 раз в день", "rp": "Rp.: Tab. Metoprololi succinatis 0,095 №20", "latin": "Metoprololi succinatis", "sig": "D.S. По 1 таблетке 1 раз в день", "quantity": "№20"}, {"id": 44, "name": "Метотрексат", "form": "раствор для подкожного введения", "dose": "2% — 1 мл", "recipe": "Rp.: Sol. Methotrexati 2% — 1 ml\nD.t.d. №10 in amp.\nS. П/к 1 раз в неделю", "rp": "Rp.: Sol. Methotrexati 2% — 1 ml\nD.t.d. №10 in amp.", "latin": "Methotrexati", "sig": "S. П/к 1 раз в неделю", "quantity": "№10; 1 ml"}, {"id": 45, "name": "Метронидазол", "form": "таблетки", "dose": "0,25 г", "recipe": "Rp.: Tab. Metronidazoli 0,25 №10\nD.S. По 1 таблетке 2 раза в день — 5 дней", "rp": "Rp.: Tab. Metronidazoli 0,25 №10", "latin": "Metronidazoli", "sig": "D.S. По 1 таблетке 2 раза в день — 5 дней", "quantity": "№10; 5"}, {"id": 46, "name": "Метформин", "form": "таблетки пролонгированного действия", "dose": "0,5 г", "recipe": "Rp.: Tab. Metformini 0,5 №100\nD.S. По 1 таблетке 2 раза в день во время или после еды", "rp": "Rp.: Tab. Metformini 0,5 №100", "latin": "Metformini", "sig": "D.S. По 1 таблетке 2 раза в день во время или после еды", "quantity": "№100"}, {"id": 47, "name": "Моксифлоксацин", "form": "таблетки, покрытые оболочкой", "dose": "0,4 г", "recipe": "Rp.: Tab. Moxifloxacini 0,4 obd. №10\nD.S. Внутрь по 1 таблетке 1 раз в сутки", "rp": "Rp.: Tab. Moxifloxacini 0,4 obd. №10", "latin": "Moxifloxacini", "sig": "D.S. Внутрь по 1 таблетке 1 раз в сутки", "quantity": "№10"}, {"id": 48, "name": "Моксонидин", "form": "таблетки, покрытые оболочкой", "dose": "0,0002 г", "recipe": "Rp.: Tab. Moxonidini 0,0002 obd. №20\nD.S. По 1 таблетке 1 раз в день", "rp": "Rp.: Tab. Moxonidini 0,0002 obd. №20", "latin": "Moxonidini", "sig": "D.S. По 1 таблетке 1 раз в день", "quantity": "№20"}, {"id": 49, "name": "Нитроглицерин", "form": "таблетки или аэрозоль подъязычный", "dose": "0,0005 г / 0,0004 г/доза", "recipe": "Rp.: Tab. Nitroglycerini 0,0005 №20\nD.S. По 1 таблетке под язык.\nRp.: Aer. Nitroglycerini 0,0004/d — 10,0\nD.S. По 1-2 дозы на или под язык для купирования приступа стенокардии", "rp": "Rp.: Tab. Nitroglycerini 0,0005 №20", "latin": "Nitroglycerini", "sig": "D.S. По 1 таблетке под язык.\nRp.: Aer. Nitroglycerini 0,0004/d — 10,0\nD.S. По 1-2 дозы на или под язык для купирования приступа стенокардии", "quantity": "№20; 10,0; 2 доз"}, {"id": 50, "name": "Норфлоксацин", "form": "таблетки, покрытые оболочкой", "dose": "0,4 г", "recipe": "Rp.: Tab. Norfloxacini 0,4 obd. №20\nD.S. По 1 таблетке 2 раза в сутки", "rp": "Rp.: Tab. Norfloxacini 0,4 obd. №20", "latin": "Norfloxacini", "sig": "D.S. По 1 таблетке 2 раза в сутки", "quantity": "№20"}, {"id": 51, "name": "Озельтамивир", "form": "капсулы", "dose": "0,075 г", "recipe": "Rp.: Caps. Oseltamiviri 0,075 №10\nD.S. Принимать по 1 капсуле 2 раза в сутки", "rp": "Rp.: Caps. Oseltamiviri 0,075 №10", "latin": "Oseltamiviri", "sig": "D.S. Принимать по 1 капсуле 2 раза в сутки", "quantity": "№10"}, {"id": 52, "name": "Омепразол", "form": "капсулы", "dose": "0,02 г", "recipe": "Rp.: Caps. Omeprazoli 0,02 №20\nD.S. Внутрь по 1 капсуле натощак за 30 мин до еды 1 раз в день", "rp": "Rp.: Caps. Omeprazoli 0,02 №20", "latin": "Omeprazoli", "sig": "D.S. Внутрь по 1 капсуле натощак за 30 мин до еды 1 раз в день", "quantity": "№20"}, {"id": 53, "name": "Панкреатин", "form": "капсулы", "dose": "25000 ЕД", "recipe": "Rp.: Caps. Pancreatini 25000 ЕД №60\nD.S. Внутрь по 1 капсуле во время еды, запивая водой", "rp": "Rp.: Caps. Pancreatini 25000 ЕД №60", "latin": "Pancreatini", "sig": "D.S. Внутрь по 1 капсуле во время еды, запивая водой", "quantity": "№60"}, {"id": 54, "name": "Парацетамол", "form": "таблетки", "dose": "0,5 г", "recipe": "Rp.: Tab. Paracetamoli 0,5 №20\nD.S. Внутрь по 1 таблетке при повышении температуры выше 38,5 °C", "rp": "Rp.: Tab. Paracetamoli 0,5 №20", "latin": "Paracetamoli", "sig": "D.S. Внутрь по 1 таблетке при повышении температуры выше 38,5 °C", "quantity": "№20"}, {"id": 55, "name": "Периндоприл", "form": "таблетки, покрытые оболочкой", "dose": "0,004 г", "recipe": "Rp.: Tab. Perindoprili 0,004 obd. №10\nD.S. По 1 таблетке 1 раз в день", "rp": "Rp.: Tab. Perindoprili 0,004 obd. №10", "latin": "Perindoprili", "sig": "D.S. По 1 таблетке 1 раз в день", "quantity": "№10"}, {"id": 56, "name": "Преднизолон", "form": "таблетки", "dose": "0,005 г", "recipe": "Rp.: Tab. Prednisoloni 0,005 №60\nD.S. Внутрь: 3 таблетки в 7 ч, 2 таблетки в 11 ч, 1 таблетка в 13 ч", "rp": "Rp.: Tab. Prednisoloni 0,005 №60", "latin": "Prednisoloni", "sig": "D.S. Внутрь: 3 таблетки в 7 ч, 2 таблетки в 11 ч, 1 таблетка в 13 ч", "quantity": "№60"}, {"id": 57, "name": "Рабепразол", "form": "капсулы", "dose": "0,02 г", "recipe": "Rp.: Caps. Rabeprazoli 0,02 №20\nD.S. Внутрь по 1 капсуле 1 раз в сутки", "rp": "Rp.: Caps. Rabeprazoli 0,02 №20", "latin": "Rabeprazoli", "sig": "D.S. Внутрь по 1 капсуле 1 раз в сутки", "quantity": "№20"}, {"id": 58, "name": "Рамиприл", "form": "таблетки", "dose": "0,01 г", "recipe": "Rp.: Tab. Ramiprili 0,01 №50\nD.S. По 1 таблетке 2 раза в день", "rp": "Rp.: Tab. Ramiprili 0,01 №50", "latin": "Ramiprili", "sig": "D.S. По 1 таблетке 2 раза в день", "quantity": "№50"}, {"id": 59, "name": "Розувастатин", "form": "таблетки, покрытые оболочкой", "dose": "0,01 г", "recipe": "Rp.: Tab. Rosuvastatini 0,01 obd. №30\nD.S. По 1 таблетке 1 раз в день", "rp": "Rp.: Tab. Rosuvastatini 0,01 obd. №30", "latin": "Rosuvastatini", "sig": "D.S. По 1 таблетке 1 раз в день", "quantity": "№30"}, {"id": 60, "name": "Саксаглиптин", "form": "таблетки, покрытые пленочной оболочкой", "dose": "0,0025 г", "recipe": "Rp.: Tab. Saxagliptini 0,0025 obd. №30\nD.S. Внутрь независимо от приема пищи 1 раз в сутки", "rp": "Rp.: Tab. Saxagliptini 0,0025 obd. №30", "latin": "Saxagliptini", "sig": "D.S. Внутрь независимо от приема пищи 1 раз в сутки", "quantity": "№30"}, {"id": 61, "name": "Сальметерол", "form": "порошок для ингаляций дозированный", "dose": "0,000025 г/доза", "recipe": "Rp.: Pulv. Salmeteroli 0,000025/dosis\nD.S. Ингаляционно по назначенной схеме", "rp": "Rp.: Pulv. Salmeteroli 0,000025/dosis", "latin": "Salmeteroli", "sig": "D.S. Ингаляционно по назначенной схеме", "quantity": "—"}, {"id": 62, "name": "Сальбутамол", "form": "аэрозоль для ингаляций дозированный", "dose": "0,0001 г/доза", "recipe": "Rp.: Aer. Salbutamoli 0,0001/dosis №200\nD.S. По 1 ингаляции 3-4 раза в день при обострении бронхиальной астмы", "rp": "Rp.: Aer. Salbutamoli 0,0001/dosis №200", "latin": "Salbutamoli", "sig": "D.S. По 1 ингаляции 3-4 раза в день при обострении бронхиальной астмы", "quantity": "№200; 4"}, {"id": 63, "name": "Симетикон", "form": "капсулы", "dose": "0,04 г", "recipe": "Rp.: Caps. Simethiconi 0,04 №25\nD.S. По 1 капсуле 3 раза в сутки", "rp": "Rp.: Caps. Simethiconi 0,04 №25", "latin": "Simethiconi", "sig": "D.S. По 1 капсуле 3 раза в сутки", "quantity": "№25"}, {"id": 64, "name": "Смектит диоктаэдрический", "form": "порошок для приготовления суспензии для приема внутрь", "dose": "3,0 г", "recipe": "Rp.: Pulv. Smectiti dioctaedrici 3,0 №30\nD.S. По 1 пакетику 1 раз в сутки", "rp": "Rp.: Pulv. Smectiti dioctaedrici 3,0 №30", "latin": "Smectiti dioctaedrici", "sig": "D.S. По 1 пакетику 1 раз в сутки", "quantity": "№30"}, {"id": 65, "name": "Спиронолактон", "form": "таблетки", "dose": "0,025 г", "recipe": "Rp.: Tab. Spironolactoni 0,025 №20\nD.S. По 1 таблетке утром внутрь", "rp": "Rp.: Tab. Spironolactoni 0,025 №20", "latin": "Spironolactoni", "sig": "D.S. По 1 таблетке утром внутрь", "quantity": "№20"}, {"id": 66, "name": "Тиотропия бромид", "form": "капсулы с порошком для ингаляций", "dose": "0,000018 г", "recipe": "Rp.: Caps. Tiotropii bromidi 0,000018 №30\nD.S. Для ингаляций через аэролайзер по 1 капсуле 1 раз в сутки", "rp": "Rp.: Caps. Tiotropii bromidi 0,000018 №30", "latin": "Tiotropii bromidi", "sig": "D.S. Для ингаляций через аэролайзер по 1 капсуле 1 раз в сутки", "quantity": "№30"}, {"id": 67, "name": "Торасемид", "form": "таблетки", "dose": "0,01 г", "recipe": "Rp.: Tab. Torasemidi 0,01 №20\nD.S. По 1 таблетке 1 раз в сутки утром", "rp": "Rp.: Tab. Torasemidi 0,01 №20", "latin": "Torasemidi", "sig": "D.S. По 1 таблетке 1 раз в сутки утром", "quantity": "№20"}, {"id": 68, "name": "Урсодезоксихолевая кислота", "form": "капсулы", "dose": "0,25 г", "recipe": "Rp.: Caps. Acidi ursodeoxycholici 0,25 №50\nD.S. По 2 капсулы на ночь", "rp": "Rp.: Caps. Acidi ursodeoxycholici 0,25 №50", "latin": "Acidi ursodeoxycholici", "sig": "D.S. По 2 капсулы на ночь", "quantity": "№50"}, {"id": 69, "name": "Фамотидин", "form": "раствор для инъекций", "dose": "0,02 г", "recipe": "Rp.: Sol. Famotidini 0,02\nD.t.d. №5 in flac.\nS. Внутривенно капельно", "rp": "Rp.: Sol. Famotidini 0,02\nD.t.d. №5 in flac.", "latin": "Famotidini", "sig": "S. Внутривенно капельно", "quantity": "№5"}, {"id": 70, "name": "Фенофибрат", "form": "капсулы пролонгированного действия", "dose": "0,25 г", "recipe": "Rp.: Caps. Fenofibrati retardi 0,25 №30\nD.S. Внутрь 1 раз в сутки", "rp": "Rp.: Caps. Fenofibrati retardi 0,25 №30", "latin": "Fenofibrati retardi", "sig": "D.S. Внутрь 1 раз в сутки", "quantity": "№30"}, {"id": 71, "name": "Флутиказон", "form": "порошок для ингаляций дозированный", "dose": "125 мкг", "recipe": "Rp.: Fluticasoni propionatis 125 mcg\nD.t.d. №60\nS. Ингаляционно по 2 дозы 2 раза в день", "rp": "Rp.: Fluticasoni propionatis 125 mcg\nD.t.d. №60", "latin": "Fluticasoni propionatis", "sig": "S. Ингаляционно по 2 дозы 2 раза в день", "quantity": "№60"}, {"id": 72, "name": "Фолиевая кислота", "form": "таблетки, покрытые пленочной оболочкой", "dose": "0,001 г", "recipe": "Rp.: Tab. Acidi folici 0,001 obd. №30\nD.S. По 1 таблетке каждые 8 часов после приема пищи", "rp": "Rp.: Tab. Acidi folici 0,001 obd. №30", "latin": "Acidi folici", "sig": "D.S. По 1 таблетке каждые 8 часов после приема пищи", "quantity": "№30"}, {"id": 73, "name": "Фуросемид", "form": "инъекции", "dose": "1% — 2 мл", "recipe": "Rp.: Sol. Furosemidi 1% — 2 ml\nD.S. Развести в 10 мл изотонического раствора натрия хлорида и ввести в/в медленно", "rp": "Rp.: Sol. Furosemidi 1% — 2 ml", "latin": "Furosemidi", "sig": "D.S. Развести в 10 мл изотонического раствора натрия хлорида и ввести в/в медленно", "quantity": "2 ml"}, {"id": 74, "name": "Цианокобаламин", "form": "раствор для инъекций", "dose": "0,01% — 1 мл", "recipe": "Rp.: Sol. Cyanocobalamini 0,01% — 1 ml\nD.t.d. №6 in amp.\nS. Вводить по 1 мл в/м 1 раз в день", "rp": "Rp.: Sol. Cyanocobalamini 0,01% — 1 ml\nD.t.d. №6 in amp.", "latin": "Cyanocobalamini", "sig": "S. Вводить по 1 мл в/м 1 раз в день", "quantity": "№6; 1 ml"}, {"id": 75, "name": "Эналаприлат", "form": "раствор для внутривенных инъекций", "dose": "0,00125 г/мл", "recipe": "Rp.: Sol. Enalaprilati 0,00125 — 1 ml\nD.t.d. №5 in amp.\nS. В/в капельно в разведении, каждые 6 ч, в течение 48 ч", "rp": "Rp.: Sol. Enalaprilati 0,00125 — 1 ml\nD.t.d. №5 in amp.", "latin": "Enalaprilati", "sig": "S. В/в капельно в разведении, каждые 6 ч, в течение 48 ч", "quantity": "№5; 1 ml"}];
+var STORAGE_KEY = 'rx-trainer-progress-v2-telegram';
+var progress = loadProgress();
+var current = null;
+var currentMode = 'dose';
+var modes = ['dose','latin','quantity','recipe'];
+var modeNames = { dose:'дозировка', latin:'Латынь', quantity:'количество', recipe:'полный рецепт' };
+
+function el(id) { return document.getElementById(id); }
+function hasClass(node, cls) { return node && (' ' + node.className + ' ').indexOf(' ' + cls + ' ') > -1; }
+function addClass(node, cls) { if (node && !hasClass(node, cls)) node.className += (node.className ? ' ' : '') + cls; }
+function removeClass(node, cls) { if (node) node.className = (' ' + node.className + ' ').replace(' ' + cls + ' ', ' ').replace(/^\s+|\s+$/g, ''); }
+function setHidden(node, hidden) { if (hidden) addClass(node, 'hidden'); else removeClass(node, 'hidden'); }
+function safeFocus(node) { try { if (node && node.focus) node.focus(); } catch(e) {} }
+function on(node, ev, fn) { if (node && node.addEventListener) node.addEventListener(ev, fn, false); }
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(ch) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]; }); }
+function loadProgress() { try { var raw = window.localStorage && window.localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch(e) { return {}; } }
+function saveProgress() { try { if (window.localStorage) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch(e) {} updateStats(); }
+function key(item, mode) { return item.id + '|' + mode; }
+function norm(s) { return String(s || '').toLowerCase().replace(/[ё]/g,'е').replace(/[№]/g,'n').replace(/\bno\b/g,'n').replace(/\bn\.?\s*/g,'n').replace(/[.]/g, ',').replace(/[–—-]/g,'-').replace(/\s+/g,'').replace(/[.:;()]/g,'').replace(/грамм(?:а|ов)?/g,'г').replace(/таблетк[аиуек]*|табл\.?/g,'таб').replace(/^\s+|\s+$/g,''); }
+function stripSigPrefix(s) { return String(s || '').replace(/^\s*(d\s*\.?\s*s\s*\.?|s\s*\.?)\s*/i, ''); }
+function normSig(s) { return norm(stripSigPrefix(s)); }
+function normDose(s) { return String(s || '').toLowerCase().replace(/[ё]/g,'е').replace(/[.]/g, ',').replace(/[–—-]/g,'-').replace(/\s+/g,'').replace(/грамм(?:а|ов)?/g,'г').replace(/мл/g,'ml').replace(/^\s+|\s+$/g,''); }
+function doseLooksClose(user, expected) { var u = normDose(user), e = normDose(expected); return !!u && (u === e || (u.length >= 4 && e.indexOf(u) > -1)); }
+function canonicalAnswer(item, mode) { if (mode === 'dose') return item.dose; if (mode === 'latin') return item.latin; if (mode === 'quantity') return item.quantity; return item.recipe; }
+function questionText(item, mode) { if (mode === 'dose') return 'Какая дозировка у препарата?'; if (mode === 'latin') return 'Напиши латинское название из Rp.'; if (mode === 'quantity') return 'Какое количество указано в рецепте?'; return 'Напиши полный рецепт.'; }
+function filteredData() { var q = norm((el('filter') || {value:''}).value || ''); var out = []; for (var i=0;i<DATA.length;i++) { var x=DATA[i]; if (!q || norm([x.id,x.name,x.form,x.dose,x.latin,x.recipe].join(' ')).indexOf(q) > -1) out.push(x); } return out; }
+function scoreFor(item, mode) { var p = progress[key(item,mode)] || {good:0,bad:0,attempts:0}; return (p.bad * 3 + (p.attempts ? 0 : 2) - p.good); }
+function shuffle(arr) { var a = arr.slice(0); for (var i=a.length-1;i>0;i--) { var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function doseKind(dose) { var s = String(dose || '').toLowerCase(); if (s.indexOf('%')>-1) return 'percent'; if (s.indexOf('мкг')>-1 || s.indexOf('mcg')>-1) return 'mcg'; if (s.indexOf('/доза')>-1 || s.indexOf('/d')>-1 || s.indexOf('dosis')>-1) return 'per-dose'; if (s.indexOf('мл')>-1 || s.indexOf('ml')>-1) return 'ml'; if (s.indexOf('ед')>-1) return 'units'; if (s.indexOf('г')>-1) return 'grams'; return 'other'; }
+function uniqueDoses() { var seen = {}, out=[]; for (var i=0;i<DATA.length;i++) { var d=DATA[i].dose; if (d && !seen[d]) { seen[d]=true; out.push(d); } } return out; }
+function buildDoseChoices(item) { var correct=item.dose, all=uniqueDoses(), same=[], other=[]; for (var i=0;i<all.length;i++) { var d=all[i]; if (d===correct) continue; if (doseKind(d)===doseKind(correct)) same.push(d); else other.push(d); } var distractors = shuffle(same).concat(shuffle(other)).slice(0,3); return shuffle([correct].concat(distractors)); }
+function selectedMode() { var m = el('mode').value; return m === 'mix' ? modes[Math.floor(Math.random()*modes.length)] : m; }
+function isDoseModeSelected() { return el('mode').value === 'dose'; }
+function updateDoseAnswerFormatVisibility() { setHidden(el('doseAnswerFormatBlock'), !isDoseModeSelected()); }
+function shouldUseDoseChoices() { return isDoseModeSelected() && currentMode === 'dose' && el('doseAnswerStyle').value === 'choices'; }
+function renderDoseChoices(item) { var box = el('doseChoices'), answer = el('answer'); if (!shouldUseDoseChoices()) { setHidden(box, true); box.innerHTML=''; setHidden(answer, false); return; } setHidden(answer, true); setHidden(box, false); var choices = buildDoseChoices(item); var html = ''; for (var i=0;i<choices.length;i++) { html += '<label class="choice"><input type="radio" name="doseChoice" value="' + escapeHtml(choices[i]) + '"><span>' + escapeHtml(choices[i]) + '</span></label>'; } box.innerHTML = html; var inputs = box.getElementsByTagName('input'); for (var j=0;j<inputs.length;j++) on(inputs[j], 'change', function() { el('answer').value = this.value; }); }
+function renderCard() { var item=current; updateDoseAnswerFormatVisibility(); el('question').textContent = questionText(item,currentMode); el('drugName').textContent = item.name; el('drugForm').textContent = item.form; el('askType').textContent = modeNames[currentMode]; el('answer').value=''; el('result').className='result'; el('result').innerHTML=''; renderDoseChoices(item); if (!shouldUseDoseChoices()) safeFocus(el('answer')); }
+function pickCard() { var pool = filteredData(); if (!pool.length) { alert('По фильтру ничего не найдено'); return; } currentMode = selectedMode(); var order = el('order').value; if (order === 'number') { if (!current) current = pool[0]; else { var idx=-1; for (var i=0;i<pool.length;i++) if (pool[i].id === current.id) idx=i; current = pool[(idx + 1 + pool.length) % pool.length]; } } else if (order === 'weak') { pool.sort(function(a,b) { return scoreFor(b,currentMode) - scoreFor(a,currentMode) || Math.random() - 0.5; }); current = pool[0]; } else { current = pool[Math.floor(Math.random()*pool.length)]; } renderCard(); }
+function checkAnswer(showOnly) { if (!current) pickCard(); var expected=canonicalAnswer(current,currentMode), user=el('answer').value, ok=false; var nUser=norm(user), nExp=norm(expected); if (currentMode === 'latin') ok = nUser === nExp || (nUser.length >= 5 && nExp.indexOf(nUser) > -1); else if (currentMode === 'recipe') ok = nUser === nExp || (nUser.length > 10 && nExp.indexOf(nUser) > -1); else if (currentMode === 'dose') ok = nUser === nExp || doseLooksClose(user,expected); else ok = nUser === nExp; var res=el('result'); res.className = 'result show ' + (showOnly ? '' : (ok ? 'ok' : 'no')); res.innerHTML = '<b>' + (showOnly ? 'Ответ:' : (ok ? 'Похоже, верно.' : 'Проверь себя по правильному варианту:')) + '</b><pre>' + escapeHtml(expected) + '</pre><div class="small" style="margin-top:8px"><b>Полный рецепт:</b></div><pre>' + escapeHtml(current.recipe) + '</pre>'; return ok; }
+function mark(good) { if (!current) return; var k=key(current,currentMode); var p=progress[k] || {good:0,bad:0,attempts:0}; p.attempts += 1; if (good) p.good += 1; else p.bad += 1; p.last = (new Date()).getTime(); progress[k]=p; saveProgress(); pickCard(); }
+function updateStats() { var good=0,bad=0; for (var k in progress) if (progress.hasOwnProperty(k)) { good += progress[k].good || 0; bad += progress[k].bad || 0; } el('statCards').textContent = filteredData().length; el('statGood').textContent = good; el('statBad').textContent = bad; }
+function renderTable() { var q=norm(el('tableSearch').value || ''), rows=[]; for (var i=0;i<DATA.length;i++) { var x=DATA[i]; if (!q || norm([x.id,x.name,x.form,x.dose,x.latin,x.quantity,x.recipe].join(' ')).indexOf(q)>-1) rows.push(x); } var html=''; for (var j=0;j<rows.length;j++) { var r=rows[j]; html += '<tr><td>'+r.id+'</td><td><b>'+escapeHtml(r.name)+'</b></td><td>'+escapeHtml(r.form)+'</td><td><b>'+escapeHtml(r.dose)+'</b></td><td>'+escapeHtml(r.latin)+'</td><td>'+escapeHtml(r.quantity)+'</td><td class="recipe">'+escapeHtml(r.recipe)+'</td></tr>'; } el('dataTable').getElementsByTagName('tbody')[0].innerHTML = html; }
+function showTable() { setHidden(el('quizTab'), true); setHidden(el('tableTab'), false); renderTable(); safeFocus(el('tableSearch')); }
+function showQuiz() { setHidden(el('tableTab'), true); setHidden(el('quizTab'), false); if (!shouldUseDoseChoices()) safeFocus(el('answer')); }
+function init() {
+  on(el('newCard'),'click',pickCard); on(el('check'),'click',function(){checkAnswer(false);}); on(el('show'),'click',function(){checkAnswer(true);}); on(el('markGood'),'click',function(){mark(true);}); on(el('markBad'),'click',function(){mark(false);});
+  on(el('filter'),'input',updateStats); on(el('mode'),'change',pickCard); on(el('doseAnswerStyle'),'change',function(){ if (current) renderCard(); }); on(el('order'),'change',pickCard); on(el('reset'),'click',function(){ if (confirm('Сбросить весь прогресс?')) { progress={}; saveProgress(); } });
+  on(el('openTable'),'click',showTable); on(el('closeTable'),'click',showQuiz); on(el('tableSearch'),'input',renderTable); on(el('print'),'click',function(){ try { window.print(); } catch(e) {} });
+  on(document,'keydown',function(e){ e=e||window.event; var target=e.target||e.srcElement; var tag=target&&target.tagName; var tableOpen=!hasClass(el('tableTab'),'hidden'); if (tableOpen) { if (e.key === 'Escape') { e.preventDefault && e.preventDefault(); showQuiz(); } return; } if (tag && /TEXTAREA|INPUT|SELECT/.test(tag) && e.key !== 'Enter') return; if (e.key === 'Enter') { e.preventDefault && e.preventDefault(); checkAnswer(false); } if (e.key === ' ' || e.code === 'Space') { e.preventDefault && e.preventDefault(); checkAnswer(true); } if (e.key === '1') { e.preventDefault && e.preventDefault(); mark(true); } if (e.key === '2') { e.preventDefault && e.preventDefault(); mark(false); } if (String(e.key || '').toLowerCase() === 'n') { e.preventDefault && e.preventDefault(); pickCard(); } });
+  updateStats(); updateDoseAnswerFormatVisibility(); renderTable(); pickCard();
+  addClass(document.documentElement, 'app-ready');
+}
+try { if (document.readyState === 'loading') on(document,'DOMContentLoaded',init); else init(); } catch(err) { var box = el('jsError'); if (box) box.innerHTML = 'Telegram не запустил полный режим тренажёра. Ниже доступен запасной режим с раскрывающимися ответами.'; }
+})();
+</script>
+</body>
+</html>
