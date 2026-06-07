@@ -4,22 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
-<title>Тренажёр рецептов — Telegram Mini App</title>
+<title>Тренажёр рецептов</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
-  --bg:#f6f7fb; --panel:#fff; --text:#172033; --muted:#647084; --line:#d9dfeb;
-  --accent:#355cff; --accent2:#eef2ff; --good:#168a4a; --bad:#bf2f35;
-  --shadow:0 10px 30px rgba(22,32,51,.08); --radius:18px;
+  --bg:#eef3fb;
+  --panel:#ffffff;
+  --panelSoft:#f5f8ff;
+  --inputBg:#ffffff;
+  --text:#172033;
+  --muted:#5d6b7e;
+  --line:#cad4e6;
+  --accent:#355cff;
+  --accent2:rgba(53,92,255,.16);
+  --buttonText:#ffffff;
+  --good:#168a4a;
+  --bad:#bf2f35;
+  --warnBg:#fff8df;
+  --warnText:#5c3f00;
+  --warnLine:#f1d68a;
+  --shadow:0 10px 30px rgba(22,32,51,.09);
+  --radius:18px;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:radial-gradient(circle at 20% 0%,#eef2ff 0,transparent 35%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
+body{margin:0;background:linear-gradient(180deg,#f7faff 0%,var(--bg) 180px);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
 header{max-width:1180px;margin:0 auto;padding:22px 16px 10px}
 h1{margin:0 0 8px;font-size:clamp(28px,7vw,46px);letter-spacing:-.04em}
-.sub{color:var(--muted);max-width:850px;font-size:15px}
+.sub{display:none}
 main{max-width:1180px;margin:0 auto;padding:10px 16px 38px}
-.panel{background:rgba(255,255,255,.92);border:1px solid rgba(217,223,235,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .app{display:none}
 html.app-ready .app{display:block}
 .nojs{display:block}
@@ -27,42 +41,42 @@ html.app-ready .nojs{display:none!important}
 .grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
 .controls{padding:16px;position:sticky;top:12px}
 .label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin:12px 0 6px}
-select,input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);padding:12px;font:inherit;outline:none}
+select,input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--inputBg);color:var(--text);padding:12px;font:inherit;outline:none}
 textarea{min-height:88px;resize:vertical}
 select:focus,input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent2)}
 .row{display:flex;gap:8px;align-items:center}
 .row>*{flex:1}
-button{appearance:none;-webkit-appearance:none;border:0;border-radius:12px;padding:12px 13px;font:inherit;font-weight:750;color:#fff;background:var(--accent);cursor:pointer;box-shadow:0 4px 16px rgba(53,92,255,.18);touch-action:manipulation}
-button.secondary{background:#eef2ff;color:#22315f;box-shadow:none;border:1px solid #dfe6ff}
-button.ghost{background:#fff;color:var(--text);border:1px solid var(--line);box-shadow:none}
+button{appearance:none;-webkit-appearance:none;border:0;border-radius:12px;padding:12px 13px;font:inherit;font-weight:750;color:var(--buttonText);background:var(--accent);cursor:pointer;box-shadow:0 4px 16px rgba(53,92,255,.18);touch-action:manipulation}
+button.secondary{background:var(--panelSoft);color:var(--text);box-shadow:none;border:1px solid var(--line)}
+button.ghost{background:var(--panel);color:var(--text);border:1px solid var(--line);box-shadow:none}
 button.good{background:var(--good)} button.bad{background:var(--bad)} button.skip{background:#7c3aed} button.resetBtn{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3;box-shadow:none}
 .small{font-size:13px;color:var(--muted)}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.stat{background:#f7f9ff;border:1px solid #e4e9f7;border-radius:14px;padding:10px}
+.stat{background:var(--panelSoft);border:1px solid var(--line);border-radius:14px;padding:10px}
 .stat b{display:block;font-size:20px}
 .card{padding:22px;min-height:380px}
 .prompt{margin:14px 0;font-size:clamp(24px,6vw,38px);line-height:1.08;letter-spacing:-.03em}
 .meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
-.meta div{background:#f8faff;border:1px solid #e6ebf8;padding:10px;border-radius:14px;min-height:58px}
+.meta div{background:var(--panelSoft);border:1px solid var(--line);padding:10px;border-radius:14px;min-height:58px}
 .meta span{display:block;color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
 .choiceGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
-.choice{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px;cursor:pointer;font-weight:750}
+.choice{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--line);border-radius:12px;background:var(--inputBg);padding:11px 12px;cursor:pointer;font-weight:750}
 .choice input{width:auto;margin-top:3px} .choice span{overflow-wrap:anywhere}
-.result{margin-top:14px;padding:14px;border-radius:14px;border:1px solid var(--line);background:#fff;display:none}
-.result.show{display:block} .result.ok{border-color:rgba(22,138,74,.3);background:#f0fbf5} .result.no{border-color:rgba(191,47,53,.25);background:#fff4f4}
+.result{margin-top:14px;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--panel);display:none}
+.result.show{display:block} .result.ok{border-color:rgba(22,138,74,.35);background:rgba(22,138,74,.10)} .result.no{border-color:rgba(191,47,53,.35);background:rgba(191,47,53,.10)}
 pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;padding:12px;background:#0e1728;color:#f8fafc;border-radius:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;line-height:1.42}
 .hidden{display:none!important}
 .tablePanel{padding:16px}
-.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#fff;max-height:620px}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel);max-height:620px}
 table{border-collapse:collapse;width:100%;min-width:940px;font-size:14px}
-th,td{border-bottom:1px solid #edf0f7;padding:9px 10px;vertical-align:top;text-align:left}
-th{position:sticky;top:0;background:#f4f7ff;color:#25365c;z-index:1}
+th,td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:top;text-align:left}
+th{position:sticky;top:0;background:var(--panelSoft);color:var(--text);z-index:1}
 td.recipe{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap}
-.notice{padding:14px 16px;border:1px solid #f7dda0;background:#fff8df;color:#5c3f00;border-radius:14px;margin-bottom:14px}
+.notice{padding:14px 16px;border:1px solid var(--warnLine);background:var(--warnBg);color:var(--warnText);border-radius:14px;margin-bottom:14px}
 .fallback-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.fallback-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 4px 16px rgba(22,32,51,.04)}
+.fallback-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 4px 16px rgba(22,32,51,.04)}
 .fallback-title{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap} .fallback-title span{color:var(--muted);font-weight:800} .fallback-form{color:var(--muted);font-size:14px;margin:4px 0 10px}
-details{border-top:1px solid #edf0f7;padding:8px 0} summary{cursor:pointer;font-weight:800;color:#263d7a}
+details{border-top:1px solid var(--line);padding:8px 0} summary{cursor:pointer;font-weight:800;color:var(--accent)}
 @media (max-width:860px){.grid{grid-template-columns:1fr}.controls{position:static}.meta{grid-template-columns:1fr}.choiceGrid{grid-template-columns:1fr}.fallback-grid{grid-template-columns:1fr}header,main{padding-left:12px;padding-right:12px}.row{flex-wrap:wrap}}
 @media print{body{background:#fff}.controls,.card,.nojs .notice{display:none}.grid{display:block}.panel{box-shadow:none;border:0}.tableWrap{max-height:none;overflow:visible;border:0}th{position:static}}
 </style>
@@ -70,7 +84,6 @@ details{border-top:1px solid #edf0f7;padding:8px 0} summary{cursor:pointer;font-
 <body>
 <header>
   <h1>Тренажёр рецептов</h1>
-  <div class="sub">Telegram Mini App-версия: открывается через кнопку бота внутри Telegram. Если открыть как обычный HTML-файл, запасные карточки ниже всё равно останутся видимыми.</div>
 </header>
 
 <main class="nojs" id="fallback">
@@ -1165,8 +1178,22 @@ S. В/в капельно в разведении, каждые 6 ч, в теч�
       tg.expand();
       document.documentElement.classList.add('telegram-mini-app');
       var theme = tg.themeParams || {};
-      if (theme.bg_color) document.documentElement.style.setProperty('--bg', theme.bg_color);
+      var darkMode = tg.colorScheme === 'dark';
+      if (darkMode) {
+        document.documentElement.style.setProperty('--bg', theme.bg_color || '#17212b');
+        document.documentElement.style.setProperty('--panel', theme.secondary_bg_color || '#243447');
+        document.documentElement.style.setProperty('--panelSoft', theme.section_bg_color || theme.secondary_bg_color || '#1f2b38');
+        document.documentElement.style.setProperty('--inputBg', theme.section_bg_color || theme.secondary_bg_color || '#1f2b38');
+        document.documentElement.style.setProperty('--text', theme.text_color || '#ffffff');
+        document.documentElement.style.setProperty('--muted', theme.hint_color || '#9fb0c3');
+        document.documentElement.style.setProperty('--line', theme.section_separator_color || 'rgba(255,255,255,.14)');
+        document.documentElement.style.setProperty('--accent2', 'rgba(255,255,255,.10)');
+        document.documentElement.style.setProperty('--warnBg', '#4b3b08');
+        document.documentElement.style.setProperty('--warnText', '#ffe9a8');
+        document.documentElement.style.setProperty('--warnLine', '#7a6520');
+      }
       if (theme.text_color) document.documentElement.style.setProperty('--text', theme.text_color);
+      if (theme.hint_color) document.documentElement.style.setProperty('--muted', theme.hint_color);
       if (theme.button_color) document.documentElement.style.setProperty('--accent', theme.button_color);
       if (theme.button_text_color) document.documentElement.style.setProperty('--buttonText', theme.button_text_color);
     } catch (e) {}
@@ -1175,6 +1202,9 @@ S. В/в капельно в разведении, каждые 6 ч, в теч�
     document.addEventListener('DOMContentLoaded', initTelegramMiniApp);
   } else {
     initTelegramMiniApp();
+  }
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.onEvent) {
+    try { window.Telegram.WebApp.onEvent('themeChanged', initTelegramMiniApp); } catch (e) {}
   }
 })();
 </script>
