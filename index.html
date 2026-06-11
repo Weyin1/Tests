@@ -1772,6 +1772,76 @@ html.theme-dark .answer-note.bad .correct-answer-bullet-dot{
 }
 </style>
 
+
+<style id="v118-exam-timer-check-button-fix">
+/* v118: десктопная кнопка "Проверить" аккуратно рядом с завершением */
+@media(min-width:761px){
+  .quiz-actions.single-finish{
+    position:relative!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:12px!important;
+    width:100%!important;
+    margin-top:16px!important;
+  }
+
+  .quiz-actions.single-finish .check-wrap{
+    position:static!important;
+    right:auto!important;
+    top:auto!important;
+    transform:none!important;
+    width:auto!important;
+    min-width:0!important;
+    margin:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  .quiz-actions.single-finish #check,
+  .quiz-actions.single-finish .check-wrap #check,
+  .quiz-actions.single-finish .check-wrap .btn{
+    min-height:44px!important;
+    padding:11px 18px!important;
+    border-radius:14px!important;
+    background:linear-gradient(135deg,#0ea5e9 0%,#2563eb 55%,#1d4ed8 100%)!important;
+    color:#ffffff!important;
+    border:2px solid rgba(255,255,255,.88)!important;
+    box-shadow:0 9px 20px rgba(37,99,235,.24)!important;
+    font-weight:900!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+  }
+
+  .quiz-actions.single-finish #check:hover,
+  .quiz-actions.single-finish .check-wrap #check:hover,
+  .quiz-actions.single-finish .check-wrap .btn:hover{
+    transform:translateY(-1px)!important;
+    background:linear-gradient(135deg,#0284c7 0%,#1d4ed8 55%,#1e40af 100%)!important;
+    box-shadow:0 11px 24px rgba(37,99,235,.30)!important;
+  }
+
+  html.theme-dark .quiz-actions.single-finish #check,
+  html.theme-dark .quiz-actions.single-finish .check-wrap #check,
+  html.theme-dark .quiz-actions.single-finish .check-wrap .btn,
+  html.telegram-mini-app.theme-dark .quiz-actions.single-finish #check,
+  html.telegram-mini-app.theme-dark .quiz-actions.single-finish .check-wrap #check,
+  html.telegram-mini-app.theme-dark .quiz-actions.single-finish .check-wrap .btn{
+    background:linear-gradient(135deg,#1e40af 0%,#1d4ed8 55%,#172554 100%)!important;
+    color:#dbeafe!important;
+    border-color:rgba(191,219,254,.72)!important;
+    box-shadow:0 10px 24px rgba(0,0,0,.28)!important;
+  }
+}
+
+/* Чтобы таймер при перерисовке не мигал обратно на 60:00 */
+body.test-exam-active #quizTimerPill.v118-timer-stable{
+  transition:color .15s ease, background .15s ease, border-color .15s ease!important;
+}
+</style>
+
 </head>
 <body data-build="v96-fix-questions-100-105">
 <header class="top"><div class="top-inner"><div class="brand"><div class="logo">✓</div><div>ГИА</div></div><nav class="nav"><button class="active" data-view="home">Главная</button><button data-view="favorites">Избранное</button><button data-view="mistakes">Ошибки</button><button data-view="stats">Прогресс</button></nav></div></header>
@@ -10339,6 +10409,154 @@ html.telegram-mini-app.theme-dark .search-open-answer{
       if(pendingSave && hasCloudV117()) writeCloudV117();
     }catch(e){}
   });
+})();
+</script>
+
+
+<script id="v118-exam-timer-check-button-fix-script">
+(function(){
+  let stableExamKey = '';
+  let stableEndsAt = 0;
+  let timerInterval = null;
+
+  function isTestExam(){
+    try{
+      return !!(session && session.meta && session.meta.testExam);
+    }catch(e){
+      return false;
+    }
+  }
+
+  function examKey(){
+    try{
+      if(!session || !session.ids) return '';
+      return session.ids.join('|');
+    }catch(e){
+      return '';
+    }
+  }
+
+  function fmt(sec){
+    sec = Math.max(0, Math.floor(Number(sec) || 0));
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+
+  function normalizeExamEnd(){
+    if(!isTestExam()) return 0;
+
+    const key = examKey();
+    const now = Date.now();
+    const duration = Number(session.meta.durationSec || 3600) || 3600;
+    let currentEnd = Number(session.meta.endsAt || 0) || 0;
+
+    if(!currentEnd){
+      currentEnd = now + duration * 1000;
+      session.meta.endsAt = currentEnd;
+    }
+
+    if(stableExamKey && key === stableExamKey && stableEndsAt){
+      // Если вопрос просто переключили, возвращаем старый конец экзамена,
+      // даже если другой старый патч успел заново поставить 60 минут.
+      session.meta.endsAt = stableEndsAt;
+      return stableEndsAt;
+    }
+
+    stableExamKey = key;
+    stableEndsAt = currentEnd;
+    session.meta.endsAt = stableEndsAt;
+    return stableEndsAt;
+  }
+
+  function updateTimer(){
+    if(!isTestExam()){
+      stableExamKey = '';
+      stableEndsAt = 0;
+      if(timerInterval){
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      return;
+    }
+
+    const end = normalizeExamEnd();
+    const pill = document.getElementById('quizTimerPill');
+    if(!pill || !end) return;
+
+    const left = Math.ceil((end - Date.now()) / 1000);
+    pill.textContent = '⏱ ' + fmt(left);
+    pill.classList.add('v118-timer-stable');
+    pill.classList.toggle('warning', left <= 300 && left > 60);
+    pill.classList.toggle('danger', left <= 60);
+
+    if(left <= 0){
+      try{
+        if(typeof renderSummary === 'function') renderSummary();
+      }catch(e){}
+    }
+  }
+
+  function ensureTimerLoop(){
+    if(!isTestExam()) return;
+    updateTimer();
+    if(!timerInterval){
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+  }
+
+  function polishCheckButton(){
+    const check = document.getElementById('check');
+    if(check){
+      check.textContent = 'Проверить ответ';
+      check.classList.add('v118-check-button');
+    }
+
+    const wrap = check && check.closest('.check-wrap');
+    if(wrap){
+      wrap.classList.add('v118-check-wrap');
+    }
+  }
+
+  function run(){
+    ensureTimerLoop();
+    // Делаем несколько обновлений после рендера, потому что старые патчи могут
+    // заново переставлять таймер и ставить текст 60:00.
+    updateTimer();
+    polishCheckButton();
+  }
+
+  ['renderQuiz','renderAnswered','nextQuestion','startQuiz','checkMulti','chooseOption'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v118TimerCheckFix){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(run, 0);
+          setTimeout(updateTimer, 50);
+          setTimeout(updateTimer, 180);
+          setTimeout(updateTimer, 420);
+          return result;
+        };
+        wrapped.__v118TimerCheckFix = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-qjump],.opt,#check,#next,#finishTest')){
+      setTimeout(run, 0);
+      setTimeout(updateTimer, 120);
+    }
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('focus', run, {passive:true});
+  setTimeout(run, 0);
+  setTimeout(run, 250);
 })();
 </script>
 
