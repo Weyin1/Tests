@@ -1842,6 +1842,262 @@ body.test-exam-active #quizTimerPill.v118-timer-stable{
 }
 </style>
 
+
+<style id="v119-next-hint-one-line">
+/* v119: подсказка Enter/Space/клик — в одну строку, без растягивания слов */
+.next-hint-one-line,
+.hint.next-hint-one-line,
+.small.next-hint-one-line{
+  white-space:nowrap!important;
+  text-align:center!important;
+  text-align-last:auto!important;
+  word-spacing:normal!important;
+  letter-spacing:normal!important;
+  display:block!important;
+  width:100%!important;
+  overflow:visible!important;
+}
+
+@media(max-width:760px){
+  .next-hint-one-line,
+  .hint.next-hint-one-line,
+  .small.next-hint-one-line{
+    font-size:clamp(10px, 2.65vw, 12px)!important;
+    letter-spacing:-.02em!important;
+    line-height:1.25!important;
+    white-space:nowrap!important;
+  }
+}
+</style>
+
+
+<style id="v120-desktop-action-buttons-right">
+/* v120: компьютерная версия — нижние кнопки теста справа, "Завершить" крайняя справа */
+@media(min-width:761px){
+  .quiz-actions.single-finish{
+    position:relative!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:12px!important;
+    width:100%!important;
+    margin-top:16px!important;
+  }
+
+  .quiz-actions.single-finish .check-wrap{
+    position:static!important;
+    right:auto!important;
+    left:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    width:auto!important;
+    min-width:0!important;
+    margin:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    order:1!important;
+  }
+
+  .quiz-actions.single-finish .finish-test-btn,
+  .quiz-actions.single-finish #finishTest{
+    order:2!important;
+    margin-left:0!important;
+    flex:0 0 auto!important;
+  }
+
+  .quiz-actions.single-finish #check,
+  .quiz-actions.single-finish .check-wrap #check,
+  .quiz-actions.single-finish .check-wrap .btn{
+    flex:0 0 auto!important;
+    min-height:44px!important;
+    padding:11px 18px!important;
+    border-radius:14px!important;
+    background:linear-gradient(135deg,#0ea5e9 0%,#2563eb 55%,#1d4ed8 100%)!important;
+    color:#ffffff!important;
+    border:2px solid rgba(255,255,255,.88)!important;
+    box-shadow:0 9px 20px rgba(37,99,235,.24)!important;
+    font-weight:900!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+  }
+
+  .quiz-actions.single-finish #check:hover,
+  .quiz-actions.single-finish .check-wrap #check:hover,
+  .quiz-actions.single-finish .check-wrap .btn:hover{
+    transform:translateY(-1px)!important;
+    background:linear-gradient(135deg,#0284c7 0%,#1d4ed8 55%,#1e40af 100%)!important;
+    box-shadow:0 11px 24px rgba(37,99,235,.30)!important;
+  }
+
+  html.theme-dark .quiz-actions.single-finish #check,
+  html.theme-dark .quiz-actions.single-finish .check-wrap #check,
+  html.theme-dark .quiz-actions.single-finish .check-wrap .btn,
+  html.telegram-mini-app.theme-dark .quiz-actions.single-finish #check,
+  html.telegram-mini-app.theme-dark .quiz-actions.single-finish .check-wrap #check,
+  html.telegram-mini-app.theme-dark .quiz-actions.single-finish .check-wrap .btn{
+    background:linear-gradient(135deg,#1e40af 0%,#1d4ed8 55%,#172554 100%)!important;
+    color:#dbeafe!important;
+    border-color:rgba(191,219,254,.72)!important;
+    box-shadow:0 10px 24px rgba(0,0,0,.28)!important;
+  }
+}
+</style>
+
+
+<style id="v121-desktop-footer-buttons-inside-island">
+/* v121: компьютер — кнопки остаются внутри нижнего островка; "Завершить" крайняя справа */
+@media(min-width:761px){
+  .quiz-footer-card{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+    justify-content:stretch!important;
+    gap:12px!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+
+  .quiz-footer-card .quiz-footer-hint{
+    min-width:0!important;
+    justify-self:start!important;
+    overflow:hidden!important;
+  }
+
+  .quiz-footer-card .quiz-footer-hint .hint,
+  .quiz-footer-card .quiz-footer-hint .next-hint-one-line{
+    margin:0!important;
+    width:auto!important;
+    max-width:100%!important;
+    white-space:nowrap!important;
+    text-align:left!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  .quiz-footer-card .quiz-actions.single-finish{
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:10px!important;
+    width:auto!important;
+    min-width:max-content!important;
+    margin:0!important;
+    flex:0 0 auto!important;
+    justify-self:end!important;
+  }
+
+  .quiz-footer-card .quiz-actions.single-finish .check-wrap{
+    order:1!important;
+    position:static!important;
+    right:auto!important;
+    left:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    width:auto!important;
+    min-width:0!important;
+    margin:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    flex:0 0 auto!important;
+  }
+
+  .quiz-footer-card .quiz-actions.single-finish #finishTest.finish-test-btn,
+  .quiz-footer-card .quiz-actions.single-finish .finish-test-btn{
+    order:2!important;
+    width:auto!important;
+    min-width:max-content!important;
+    flex:0 0 auto!important;
+    margin:0!important;
+  }
+
+  .quiz-footer-card .quiz-actions.single-finish #check,
+  .quiz-footer-card .quiz-actions.single-finish .check-wrap #check,
+  .quiz-footer-card .quiz-actions.single-finish .check-wrap .btn{
+    width:auto!important;
+    min-width:max-content!important;
+    flex:0 0 auto!important;
+    min-height:42px!important;
+    padding:10px 16px!important;
+    border-radius:14px!important;
+    background:linear-gradient(135deg,#0ea5e9 0%,#2563eb 55%,#1d4ed8 100%)!important;
+    color:#ffffff!important;
+    border:2px solid rgba(255,255,255,.86)!important;
+    box-shadow:0 8px 18px rgba(37,99,235,.22)!important;
+    font-weight:900!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+  }
+
+  .quiz-footer-card .quiz-actions.single-finish #check:hover,
+  .quiz-footer-card .quiz-actions.single-finish .check-wrap #check:hover,
+  .quiz-footer-card .quiz-actions.single-finish .check-wrap .btn:hover{
+    transform:translateY(-1px)!important;
+    background:linear-gradient(135deg,#0284c7 0%,#1d4ed8 55%,#1e40af 100%)!important;
+    box-shadow:0 10px 22px rgba(37,99,235,.28)!important;
+  }
+
+  html.theme-dark .quiz-footer-card .quiz-actions.single-finish #check,
+  html.theme-dark .quiz-footer-card .quiz-actions.single-finish .check-wrap #check,
+  html.theme-dark .quiz-footer-card .quiz-actions.single-finish .check-wrap .btn,
+  html.telegram-mini-app.theme-dark .quiz-footer-card .quiz-actions.single-finish #check,
+  html.telegram-mini-app.theme-dark .quiz-footer-card .quiz-actions.single-finish .check-wrap #check,
+  html.telegram-mini-app.theme-dark .quiz-footer-card .quiz-actions.single-finish .check-wrap .btn{
+    background:linear-gradient(135deg,#1e40af 0%,#1d4ed8 55%,#172554 100%)!important;
+    color:#dbeafe!important;
+    border-color:rgba(191,219,254,.72)!important;
+    box-shadow:0 10px 24px rgba(0,0,0,.28)!important;
+  }
+}
+</style>
+
+
+<style id="v122-restore-enter-space-keys">
+/* v122: возвращаем выделение Enter / Space как клавиш */
+.next-hint-one-line .kbd,
+.quiz-footer-hint .kbd,
+.hint .kbd{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:1px 7px!important;
+  margin:0 2px!important;
+  border:1px solid var(--line)!important;
+  border-bottom-width:2px!important;
+  border-radius:7px!important;
+  background:var(--card)!important;
+  color:var(--text)!important;
+  font-weight:850!important;
+  line-height:1.25!important;
+  white-space:nowrap!important;
+}
+
+html.theme-dark .next-hint-one-line .kbd,
+html.theme-dark .quiz-footer-hint .kbd,
+html.theme-dark .hint .kbd{
+  background:#0f172a!important;
+  color:#e5e7eb!important;
+  border-color:#475569!important;
+}
+</style>
+
+
+<style id="v123-click-card-bold">
+/* v123: "клик по карточке" в подсказке выделен жирным */
+.next-hint-one-line .click-card-bold,
+.quiz-footer-hint .click-card-bold,
+.hint .click-card-bold{
+  font-weight:900!important;
+  color:var(--text)!important;
+  white-space:nowrap!important;
+}
+</style>
+
 </head>
 <body data-build="v96-fix-questions-100-105">
 <header class="top"><div class="top-inner"><div class="brand"><div class="logo">✓</div><div>ГИА</div></div><nav class="nav"><button class="active" data-view="home">Главная</button><button data-view="favorites">Избранное</button><button data-view="mistakes">Ошибки</button><button data-view="stats">Прогресс</button></nav></div></header>
@@ -10557,6 +10813,324 @@ html.telegram-mini-app.theme-dark .search-open-answer{
   window.addEventListener('focus', run, {passive:true});
   setTimeout(run, 0);
   setTimeout(run, 250);
+})();
+</script>
+
+
+<script id="v119-next-hint-one-line-script">
+(function(){
+  const HINT_RE = /Enter\s*,\s*Space\s*или\s*клик\s*по\s*карточке\s*—\s*следующий\s*вопрос/i;
+
+  function fixNextHintOneLine(){
+    document.querySelectorAll('.hint,.small,p,div,span').forEach(function(el){
+      if(el.children.length > 1) return;
+      const text = (el.textContent || '').trim();
+      if(!HINT_RE.test(text)) return;
+
+      el.classList.add('next-hint-one-line');
+      el.style.setProperty('white-space','nowrap','important');
+      el.style.setProperty('text-align','center','important');
+      el.style.setProperty('text-align-last','auto','important');
+      el.style.setProperty('word-spacing','normal','important');
+      el.style.setProperty('letter-spacing','normal','important');
+      el.style.setProperty('display','block','important');
+      el.style.setProperty('width','100%','important');
+    });
+  }
+
+  ['renderQuiz','renderAnswered','nextQuestion','chooseOption','checkMulti'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v119NextHintOneLine){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(fixNextHintOneLine, 0);
+          setTimeout(fixNextHintOneLine, 80);
+          return result;
+        };
+        wrapped.__v119NextHintOneLine = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', fixNextHintOneLine);
+  window.addEventListener('resize', fixNextHintOneLine, {passive:true});
+  setTimeout(fixNextHintOneLine, 0);
+  setTimeout(fixNextHintOneLine, 250);
+})();
+</script>
+
+
+<script id="v120-desktop-action-buttons-right-script">
+(function(){
+  function fixDesktopActionButtons(){
+    if(window.matchMedia && window.matchMedia('(max-width: 760px)').matches) return;
+
+    document.querySelectorAll('.quiz-actions.single-finish').forEach(function(row){
+      row.style.setProperty('display','flex','important');
+      row.style.setProperty('flex-direction','row','important');
+      row.style.setProperty('align-items','center','important');
+      row.style.setProperty('justify-content','flex-end','important');
+      row.style.setProperty('gap','12px','important');
+      row.style.setProperty('width','100%','important');
+
+      const checkWrap = row.querySelector('.check-wrap');
+      const finish = row.querySelector('.finish-test-btn, #finishTest');
+
+      if(checkWrap){
+        checkWrap.style.setProperty('position','static','important');
+        checkWrap.style.setProperty('right','auto','important');
+        checkWrap.style.setProperty('left','auto','important');
+        checkWrap.style.setProperty('top','auto','important');
+        checkWrap.style.setProperty('bottom','auto','important');
+        checkWrap.style.setProperty('transform','none','important');
+        checkWrap.style.setProperty('width','auto','important');
+        checkWrap.style.setProperty('margin','0','important');
+        checkWrap.style.setProperty('display','flex','important');
+        checkWrap.style.setProperty('order','1','important');
+      }
+
+      if(finish){
+        finish.style.setProperty('order','2','important');
+        finish.style.setProperty('margin-left','0','important');
+        finish.style.setProperty('flex','0 0 auto','important');
+      }
+
+      const check = row.querySelector('#check');
+      if(check){
+        check.textContent = 'Проверить ответ';
+        check.classList.add('v120-check-button');
+      }
+    });
+  }
+
+  ['renderQuiz','renderAnswered','checkMulti','chooseOption','nextQuestion','startQuiz'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v120DesktopActionButtonsRight){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(fixDesktopActionButtons, 0);
+          setTimeout(fixDesktopActionButtons, 100);
+          return result;
+        };
+        wrapped.__v120DesktopActionButtonsRight = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', fixDesktopActionButtons);
+  window.addEventListener('resize', fixDesktopActionButtons, {passive:true});
+  setTimeout(fixDesktopActionButtons, 0);
+  setTimeout(fixDesktopActionButtons, 300);
+})();
+</script>
+
+
+<script id="v121-desktop-footer-buttons-inside-island-script">
+(function(){
+  function isDesktopV121(){
+    return !(window.matchMedia && window.matchMedia('(max-width: 760px)').matches);
+  }
+
+  function fixFooterButtonsV121(){
+    if(!isDesktopV121()) return;
+
+    document.querySelectorAll('.quiz-footer-card').forEach(function(footer){
+      footer.style.setProperty('display','grid','important');
+      footer.style.setProperty('grid-template-columns','minmax(0,1fr) auto','important');
+      footer.style.setProperty('align-items','center','important');
+      footer.style.setProperty('justify-content','stretch','important');
+      footer.style.setProperty('gap','12px','important');
+      footer.style.setProperty('width','100%','important');
+
+      const hint = footer.querySelector('.quiz-footer-hint');
+      if(hint){
+        hint.style.setProperty('min-width','0','important');
+        hint.style.setProperty('justify-self','start','important');
+        hint.style.setProperty('overflow','hidden','important');
+
+        const hintText = hint.querySelector('.hint');
+        if(hintText){
+          hintText.style.setProperty('white-space','nowrap','important');
+          hintText.style.setProperty('text-align','left','important');
+          hintText.style.setProperty('overflow','hidden','important');
+          hintText.style.setProperty('text-overflow','ellipsis','important');
+          hintText.style.setProperty('width','auto','important');
+          hintText.style.setProperty('max-width','100%','important');
+        }
+      }
+
+      const row = footer.querySelector('.quiz-actions.single-finish');
+      if(!row) return;
+
+      row.style.setProperty('display','flex','important');
+      row.style.setProperty('flex-direction','row','important');
+      row.style.setProperty('align-items','center','important');
+      row.style.setProperty('justify-content','flex-end','important');
+      row.style.setProperty('gap','10px','important');
+      row.style.setProperty('width','auto','important');
+      row.style.setProperty('min-width','max-content','important');
+      row.style.setProperty('margin','0','important');
+      row.style.setProperty('flex','0 0 auto','important');
+      row.style.setProperty('justify-self','end','important');
+
+      const checkWrap = row.querySelector('.check-wrap');
+      const finish = row.querySelector('#finishTest.finish-test-btn, .finish-test-btn');
+
+      if(checkWrap){
+        checkWrap.style.setProperty('order','1','important');
+        checkWrap.style.setProperty('position','static','important');
+        checkWrap.style.setProperty('right','auto','important');
+        checkWrap.style.setProperty('left','auto','important');
+        checkWrap.style.setProperty('top','auto','important');
+        checkWrap.style.setProperty('bottom','auto','important');
+        checkWrap.style.setProperty('transform','none','important');
+        checkWrap.style.setProperty('width','auto','important');
+        checkWrap.style.setProperty('min-width','0','important');
+        checkWrap.style.setProperty('margin','0','important');
+        checkWrap.style.setProperty('display','flex','important');
+        checkWrap.style.setProperty('align-items','center','important');
+        checkWrap.style.setProperty('justify-content','flex-end','important');
+        checkWrap.style.setProperty('flex','0 0 auto','important');
+      }
+
+      if(finish){
+        finish.style.setProperty('order','2','important');
+        finish.style.setProperty('width','auto','important');
+        finish.style.setProperty('min-width','max-content','important');
+        finish.style.setProperty('flex','0 0 auto','important');
+        finish.style.setProperty('margin','0','important');
+      }
+
+      const check = row.querySelector('#check');
+      if(check){
+        check.textContent = 'Проверить ответ';
+        check.style.setProperty('width','auto','important');
+        check.style.setProperty('min-width','max-content','important');
+        check.style.setProperty('flex','0 0 auto','important');
+      }
+    });
+  }
+
+  ['renderQuiz','renderAnswered','checkMulti','chooseOption','nextQuestion','startQuiz'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v121FooterButtonsInsideIsland){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(fixFooterButtonsV121, 0);
+          setTimeout(fixFooterButtonsV121, 100);
+          setTimeout(fixFooterButtonsV121, 250);
+          return result;
+        };
+        wrapped.__v121FooterButtonsInsideIsland = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', fixFooterButtonsV121);
+  window.addEventListener('resize', fixFooterButtonsV121, {passive:true});
+  setTimeout(fixFooterButtonsV121, 0);
+  setTimeout(fixFooterButtonsV121, 300);
+})();
+</script>
+
+
+<script id="v122-restore-enter-space-keys-script">
+(function(){
+  const HINT_TEXT_RE = /Enter\s*,\s*Space\s*или\s*клик\s*по\s*карточке\s*—\s*следующий\s*вопрос\.?/i;
+
+  function restoreEnterSpaceKeys(){
+    document.querySelectorAll('.quiz-footer-hint .hint, .hint.next-hint-one-line, .next-hint-one-line').forEach(function(el){
+      const text = (el.textContent || '').trim();
+      if(!HINT_TEXT_RE.test(text)) return;
+
+      if(el.querySelector('.kbd')) return;
+
+      el.innerHTML = '<span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+      el.classList.add('next-hint-one-line');
+      el.style.setProperty('white-space','nowrap','important');
+      el.style.setProperty('text-align','left','important');
+      el.style.setProperty('word-spacing','normal','important');
+      el.style.setProperty('letter-spacing','normal','important');
+    });
+  }
+
+  ['renderQuiz','renderAnswered','nextQuestion','chooseOption','checkMulti'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v122RestoreKeys){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(restoreEnterSpaceKeys, 0);
+          setTimeout(restoreEnterSpaceKeys, 100);
+          return result;
+        };
+        wrapped.__v122RestoreKeys = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', restoreEnterSpaceKeys);
+  window.addEventListener('resize', restoreEnterSpaceKeys, {passive:true});
+  setTimeout(restoreEnterSpaceKeys, 0);
+  setTimeout(restoreEnterSpaceKeys, 300);
+})();
+</script>
+
+
+<script id="v123-click-card-bold-script">
+(function(){
+  const HINT_TEXT_RE = /Enter\s*,\s*Space\s*или\s*клик\s*по\s*карточке\s*—\s*следующий\s*вопрос\.?/i;
+
+  function restoreHintWithBoldClick(){
+    document.querySelectorAll('.quiz-footer-hint .hint, .hint.next-hint-one-line, .next-hint-one-line').forEach(function(el){
+      const text = (el.textContent || '').trim();
+      if(!HINT_TEXT_RE.test(text)) return;
+
+      el.innerHTML = '<span class="kbd">Enter</span>, <span class="kbd">Space</span> или <span class="click-card-bold">клик по карточке</span> — следующий вопрос.';
+      el.classList.add('next-hint-one-line');
+      el.style.setProperty('white-space','nowrap','important');
+      el.style.setProperty('word-spacing','normal','important');
+      el.style.setProperty('letter-spacing','normal','important');
+    });
+  }
+
+  ['renderQuiz','renderAnswered','nextQuestion','chooseOption','checkMulti'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v123ClickCardBold){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(restoreHintWithBoldClick, 0);
+          setTimeout(restoreHintWithBoldClick, 100);
+          return result;
+        };
+        wrapped.__v123ClickCardBold = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', restoreHintWithBoldClick);
+  window.addEventListener('resize', restoreHintWithBoldClick, {passive:true});
+  setTimeout(restoreHintWithBoldClick, 0);
+  setTimeout(restoreHintWithBoldClick, 300);
 })();
 </script>
 
