@@ -8297,5 +8297,316 @@ html.telegram-mini-app.theme-dark .search-open-answer{
 })();
 </script>
 
+
+
+<!-- GIA_TRAINER_BUILD: v104-mobile-only-layout-fixes -->
+<style id="v104-mobile-only-layout-fixes-style">
+/* v104: только мобильная версия — меню, строка теста, блок и нижние кнопки */
+@media(max-width:760px){
+  /* В выпадающем меню остается только навигация; переключатель темы живет в шапке. */
+  .top .nav .nav-theme-toggle,
+  .top.menu-open .nav .nav-theme-toggle,
+  .top .nav button.nav-theme-toggle.theme-toggle{
+    display:none!important;
+    visibility:hidden!important;
+    position:absolute!important;
+    width:0!important;
+    height:0!important;
+    min-width:0!important;
+    min-height:0!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+  }
+
+  /* Верхняя строка теста: блок/режим слева, номер вопроса справа — в одну строку. */
+  body.quiz-active .quiz-meta{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"left center"!important;
+    align-items:center!important;
+    gap:8px!important;
+    width:100%!important;
+    margin:5px 0 8px!important;
+  }
+  body.quiz-active .quiz-meta-left{
+    grid-area:left!important;
+    justify-self:start!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:58vw!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:5px!important;
+    overflow:hidden!important;
+  }
+  body.quiz-active .quiz-meta-left > span:first-child{
+    max-width:38vw!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  body.quiz-active .quiz-meta-center{
+    grid-area:center!important;
+    justify-self:end!important;
+    width:auto!important;
+    max-width:38vw!important;
+    min-width:0!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+
+  /* Тестовый экзамен: слева название, по центру вопрос, справа таймер — все в одной строке. */
+  body.quiz-active.test-exam-active .quiz-meta{
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+    grid-template-areas:"left center right"!important;
+    gap:6px!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-left{
+    grid-area:left!important;
+    justify-self:start!important;
+    max-width:31vw!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-left > span:first-child,
+  body.quiz-active.test-exam-active .quiz-meta-left .test-exam-title{
+    max-width:29vw!important;
+    text-decoration:underline!important;
+    text-underline-offset:4px!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-center{
+    grid-area:center!important;
+    justify-self:center!important;
+    max-width:34vw!important;
+    text-align:center!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-right{
+    grid-area:right!important;
+    justify-self:end!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    width:auto!important;
+    min-width:0!important;
+    padding:0!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-right #quizTimerPill,
+  body.quiz-active.test-exam-active #quizTimerPill{
+    min-width:78px!important;
+    max-width:30vw!important;
+    margin:0!important;
+    padding:6px 8px!important;
+    border-radius:999px!important;
+    font-size:12px!important;
+    white-space:nowrap!important;
+  }
+
+  /* Внутри блока статус завершения возвращается вправо к заголовку, а не падает вниз. */
+  .block-head{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:start!important;
+    gap:10px!important;
+  }
+  .block-head > div:first-child{min-width:0!important;}
+  .block-head h1{
+    margin-bottom:6px!important;
+    font-size:23px!important;
+    line-height:1.15!important;
+  }
+  .block-head p.muted{
+    margin-top:0!important;
+    margin-bottom:8px!important;
+    line-height:1.35!important;
+  }
+  .block-head-actions{
+    justify-self:end!important;
+    align-self:start!important;
+    display:flex!important;
+    justify-content:flex-end!important;
+    width:auto!important;
+    margin:0!important;
+  }
+  .block-head-actions .pill,
+  .block-head-actions .btn{
+    max-width:38vw!important;
+    white-space:normal!important;
+    line-height:1.12!important;
+    text-align:center!important;
+    padding:7px 9px!important;
+    border-radius:13px!important;
+    font-size:11.5px!important;
+  }
+
+  /* Кнопки режима и избранного в блоке компактно рядом с верхом. */
+  .block-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    margin-top:10px!important;
+    padding-top:10px!important;
+  }
+  .block-primary-actions,
+  .block-favorite-actions{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    margin:0!important;
+  }
+  .block-primary-actions .btn,
+  .block-favorite-actions .btn{
+    width:100%!important;
+    min-height:40px!important;
+    padding:9px 8px!important;
+    border-radius:14px!important;
+    font-size:12.5px!important;
+    line-height:1.15!important;
+    text-align:center!important;
+  }
+
+  /* Низ теста: главная кнопка — завершение теста/экзамена, проверка не должна выглядеть основной. */
+  .quiz-footer-card{
+    gap:8px!important;
+  }
+  .quiz-footer-card .quiz-actions.single-finish{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+  .quiz-footer-card #finishTest.finish-test-btn,
+  .quiz-footer-card .finish-test-btn{
+    order:1!important;
+    width:100%!important;
+    min-height:42px!important;
+  }
+  .quiz-footer-card .check-wrap{
+    order:2!important;
+    position:static!important;
+    width:100%!important;
+    display:flex!important;
+    justify-content:center!important;
+    margin:0!important;
+  }
+  .quiz-footer-card .check-wrap .btn,
+  .quiz-footer-card #check{
+    width:100%!important;
+    min-height:38px!important;
+    border-radius:13px!important;
+    background:linear-gradient(135deg,#eef4ff,#f5f3ff)!important;
+    color:#1d4ed8!important;
+    border:1px solid #bfdbfe!important;
+    box-shadow:none!important;
+    font-weight:800!important;
+  }
+  html.theme-dark .quiz-footer-card .check-wrap .btn,
+  html.theme-dark .quiz-footer-card #check,
+  html.telegram-mini-app.theme-dark .quiz-footer-card .check-wrap .btn,
+  html.telegram-mini-app.theme-dark .quiz-footer-card #check{
+    background:linear-gradient(135deg,#111827,#172554)!important;
+    color:#dbeafe!important;
+    border-color:rgba(59,130,246,.36)!important;
+  }
+}
+</style>
+<script id="v104-mobile-only-layout-fixes-script">
+(function(){
+  const build='v104-mobile-only-layout-fixes';
+  try{document.documentElement.setAttribute('data-gia-build',build); if(document.body) document.body.setAttribute('data-build',build);}catch(e){}
+  function isMobileV104(){return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;}
+  function hideThemeInMobileMenuV104(){
+    try{
+      document.querySelectorAll('.nav .nav-theme-toggle').forEach(function(btn){
+        btn.setAttribute('aria-hidden','true');
+        btn.tabIndex=-1;
+        if(isMobileV104()) btn.style.display='none';
+      });
+    }catch(e){}
+  }
+  function polishMobileQuizFooterV104(){
+    try{
+      if(!isMobileV104()) return;
+      const finish=document.getElementById('finishTest');
+      if(finish){
+        if(document.body.classList.contains('test-exam-active')) finish.textContent='Завершить экзамен';
+        else if(!/Завершить/.test(finish.textContent||'')) finish.textContent='Завершить тест';
+      }
+      const check=document.getElementById('check');
+      if(check && (check.textContent||'').trim()==='Проверить') check.textContent='Проверить ответ';
+    }catch(e){}
+  }
+  function ensureExamHeaderLineV104(){
+    try{
+      if(!isMobileV104()) return;
+      if(!document.body.classList.contains('quiz-active')) return;
+      const meta=document.querySelector('.quiz-meta');
+      const left=document.querySelector('.quiz-meta-left');
+      const center=document.querySelector('.quiz-meta-center');
+      if(!meta||!left||!center) return;
+      if(document.body.classList.contains('test-exam-active')){
+        left.innerHTML='<span class="test-exam-title">Тестовый экзамен</span>';
+        center.textContent='Вопрос '+((window.session&&session.pos!=null)?session.pos+1:1)+' из '+((window.session&&session.ids)?session.ids.length:'60');
+        let right=meta.querySelector('.quiz-meta-right');
+        if(!right){
+          right=document.createElement('div');
+          right.className='quiz-meta-right';
+          meta.appendChild(right);
+        }
+        const timer=document.getElementById('quizTimerPill');
+        if(timer && timer.parentNode!==right){
+          timer.parentNode && timer.parentNode.removeChild(timer);
+          right.appendChild(timer);
+        }
+      }
+    }catch(e){}
+  }
+  function polishBlockMobileV104(){
+    try{
+      if(!isMobileV104()) return;
+      const head=document.querySelector('.block-head');
+      if(!head) return;
+      const actions=head.querySelector('.block-head-actions');
+      if(actions){
+        actions.querySelectorAll('.pill').forEach(function(p){
+          const t=(p.textContent||'').trim();
+          if(t.indexOf('Будет заверш')!==-1){
+            p.textContent='После зачёта';
+            p.title='Будет завершён после зачёта';
+          }
+        });
+      }
+    }catch(e){}
+  }
+  function runV104(){
+    hideThemeInMobileMenuV104();
+    polishMobileQuizFooterV104();
+    ensureExamHeaderLineV104();
+    polishBlockMobileV104();
+  }
+  ['renderHome','renderBlocks','renderBlockPreview','renderQuiz','renderAnswered','renderFavorites','renderMistakes','renderStats','setNav'].forEach(function(name){
+    const old=window[name] || (typeof globalThis!=='undefined'?globalThis[name]:null);
+    if(typeof old==='function' && !old.__v104){
+      const wrapped=function(){const r=old.apply(this,arguments); setTimeout(runV104,0); return r;};
+      wrapped.__v104=true;
+      window[name]=wrapped;
+      try{eval(name+' = window["'+name+'"]');}catch(e){}
+    }
+  });
+  window.addEventListener('resize',runV104,{passive:true});
+  setTimeout(runV104,0);
+  setTimeout(runV104,150);
+})();
+</script>
+
 </body>
 </html>
