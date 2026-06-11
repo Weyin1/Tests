@@ -1232,6 +1232,196 @@ html.telegram-mini-app.theme-dark .search-card #searchBox::-webkit-scrollbar-thu
 }
 </style>
 
+
+<style id="v108-mobile-hide-block-hint">
+/* v108: на мобильной версии скрываем подсказку в открытом блоке */
+@media(max-width:760px){
+  .mobile-hide-block-hint{
+    display:none!important;
+  }
+}
+</style>
+
+
+<style id="v109-mobile-block-title-underline">
+/* v109: мобильный режим — подчёркиваем название блока в верхней строке теста */
+@media(max-width:760px){
+  body.quiz-active .quiz-meta-left .mobile-block-title-underlined,
+  body.quiz-active .quiz-meta-left > span:first-child,
+  body.quiz-active .quiz-meta-left > b:first-child,
+  body.quiz-active .quiz-meta-left > div:first-child,
+  body.quiz-active .quiz-meta-left > *:first-child{
+    text-decoration: underline!important;
+    text-decoration-thickness: 1.6px!important;
+    text-underline-offset: 4px!important;
+  }
+
+  body.quiz-active .quiz-meta-left .quiz-mode,
+  body.quiz-active .quiz-meta-left .mobile-block-mode{
+    text-decoration: none!important;
+  }
+}
+</style>
+
+
+<style id="v110-mobile-favorite-label-nowrap">
+/* v110: мобильная версия — "Добавлено в избранное" помещается в одну строку */
+@media(max-width:760px){
+  .mobile-favorite-label-nowrap{
+    white-space:nowrap!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    font-size:11px!important;
+    letter-spacing:-.01em!important;
+    padding-left:7px!important;
+    padding-right:7px!important;
+    max-width:100%!important;
+  }
+
+  .block-meta .pill.mobile-favorite-label-nowrap,
+  .preview-q .pill.mobile-favorite-label-nowrap,
+  .list-item .pill.mobile-favorite-label-nowrap{
+    display:inline-flex!important;
+    align-items:center!important;
+    flex:0 0 auto!important;
+  }
+}
+</style>
+
+
+<style id="v111-mobile-block-badges-nowrap">
+/* v111: мобильная версия — описания/бейджи внутри карточек блоков не переносятся */
+@media(max-width:760px){
+  .block-meta{
+    display:flex!important;
+    align-items:center!important;
+    gap:4px!important;
+    flex-wrap:nowrap!important;
+    white-space:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding-bottom:1px!important;
+  }
+
+  .block-meta::-webkit-scrollbar{
+    display:none!important;
+    width:0!important;
+    height:0!important;
+  }
+
+  .block-meta .pill,
+  .block-meta span,
+  .block-meta b{
+    white-space:nowrap!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    flex:0 0 auto!important;
+    width:auto!important;
+    max-width:none!important;
+    min-width:max-content!important;
+  }
+
+  .block-meta .pill{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    line-height:1!important;
+    padding:3px 6px!important;
+  }
+
+  .block .pill,
+  .block .block-range{
+    white-space:nowrap!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+  }
+}
+
+@media(max-width:520px){
+  .block-meta{
+    gap:3px!important;
+  }
+
+  .block-meta .pill{
+    font-size:10.4px!important;
+    padding:3px 5px!important;
+    letter-spacing:-.015em!important;
+  }
+}
+</style>
+
+
+<style id="v112-correct-answer-bullets">
+/* v112: правильный ответ в заметке начинается с аккуратной точки-пункта */
+.correct-answer-bullets{
+  display:grid!important;
+  gap:5px!important;
+  margin-top:7px!important;
+}
+
+.correct-answer-bullet{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:8px!important;
+  line-height:1.45!important;
+  font-weight:700!important;
+  color:var(--text)!important;
+}
+
+.correct-answer-bullet-dot{
+  flex:0 0 auto!important;
+  width:12px!important;
+  display:inline-flex!important;
+  justify-content:center!important;
+  color:var(--ok)!important;
+  font-size:18px!important;
+  line-height:1.05!important;
+  margin-top:1px!important;
+}
+
+.answer-note.bad .correct-answer-bullet-dot{
+  color:var(--bad)!important;
+}
+
+html.theme-dark .answer-note.bad .correct-answer-bullet-dot{
+  color:#fb7185!important;
+}
+
+@media(max-width:760px){
+  .correct-answer-bullets{
+    gap:4px!important;
+    margin-top:6px!important;
+  }
+
+  .correct-answer-bullet{
+    gap:7px!important;
+    line-height:1.38!important;
+  }
+
+  .correct-answer-bullet-dot{
+    font-size:17px!important;
+    width:11px!important;
+  }
+}
+</style>
+
+
+<style id="v113-correct-answer-dot-align">
+/* v113: точка перед правильным ответом чуть выше и ровнее относительно текста */
+.correct-answer-bullet-dot{
+  margin-top:-2px!important;
+  line-height:1!important;
+}
+
+@media(max-width:760px){
+  .correct-answer-bullet-dot{
+    margin-top:-2px!important;
+  }
+}
+</style>
+
 </head>
 <body data-build="v96-fix-questions-100-105">
 <header class="top"><div class="top-inner"><div class="brand"><div class="logo">✓</div><div>ГИА</div></div><nav class="nav"><button class="active" data-view="home">Главная</button><button data-view="favorites">Избранное</button><button data-view="mistakes">Ошибки</button><button data-view="stats">Прогресс</button></nav></div></header>
@@ -8910,6 +9100,195 @@ html.telegram-mini-app.theme-dark .search-open-answer{
   setTimeout(runV105,0);
   setTimeout(runV105,120);
   setTimeout(runV105,350);
+})();
+</script>
+
+
+<script id="v108-mobile-hide-block-hint-script">
+(function(){
+  const HINT_TEXT = 'Правильные ответы видны ниже — можно повторить перед тренировкой или зачётом.';
+  function markMobileHiddenBlockHint(){
+    document.querySelectorAll('.hint,.small,.muted,p,div').forEach(function(el){
+      if(el.children.length > 2) return;
+      const normalized = (el.textContent || '').trim();
+      if(normalized === HINT_TEXT){
+        el.classList.add('mobile-hide-block-hint');
+      }
+    });
+  }
+  const originalRender = window.render;
+  if(typeof originalRender === 'function' && !originalRender.__v108MobileHintPatch){
+    window.render = function(){
+      const result = originalRender.apply(this, arguments);
+      setTimeout(markMobileHiddenBlockHint, 0);
+      return result;
+    };
+    window.render.__v108MobileHintPatch = true;
+  }
+  document.addEventListener('DOMContentLoaded', markMobileHiddenBlockHint);
+  setTimeout(markMobileHiddenBlockHint, 0);
+})();
+</script>
+
+
+<script id="v109-mobile-block-title-underline-script">
+(function(){
+  function underlineMobileBlockTitle(){
+    if(!document.body.classList.contains('quiz-active')) return;
+    document.querySelectorAll('.quiz-meta-left').forEach(function(meta){
+      const text = (meta.textContent || '').trim();
+      if(!/^Блок\s+\d+/i.test(text)) return;
+
+      let titleNode = null;
+      Array.from(meta.children).forEach(function(child){
+        child.classList.remove('mobile-block-title-underlined');
+      });
+
+      titleNode = Array.from(meta.children).find(function(child){
+        return /^Блок\s+\d+/i.test((child.textContent || '').trim());
+      });
+
+      if(titleNode){
+        titleNode.classList.add('mobile-block-title-underlined');
+      } else {
+        meta.classList.add('mobile-block-title-underlined');
+      }
+    });
+  }
+
+  const oldRender = window.render;
+  if(typeof oldRender === 'function' && !oldRender.__v109MobileBlockTitlePatch){
+    window.render = function(){
+      const result = oldRender.apply(this, arguments);
+      setTimeout(underlineMobileBlockTitle, 0);
+      return result;
+    };
+    window.render.__v109MobileBlockTitlePatch = true;
+  }
+
+  document.addEventListener('DOMContentLoaded', underlineMobileBlockTitle);
+  window.addEventListener('resize', underlineMobileBlockTitle);
+  setTimeout(underlineMobileBlockTitle, 0);
+})();
+</script>
+
+
+<script id="v110-mobile-favorite-label-nowrap-script">
+(function(){
+  const FAVORITE_TEXTS = ['Добавлено в избранное', 'В избранном'];
+
+  function fixFavoriteLabelsNowrap(){
+    document.querySelectorAll('.pill,.btn,.small,span,button').forEach(function(el){
+      const text = (el.textContent || '').trim();
+      if(FAVORITE_TEXTS.includes(text)){
+        el.classList.add('mobile-favorite-label-nowrap');
+      }
+    });
+  }
+
+  const oldRender = window.render;
+  if(typeof oldRender === 'function' && !oldRender.__v110FavoriteNowrapPatch){
+    window.render = function(){
+      const result = oldRender.apply(this, arguments);
+      setTimeout(fixFavoriteLabelsNowrap, 0);
+      return result;
+    };
+    window.render.__v110FavoriteNowrapPatch = true;
+  }
+
+  document.addEventListener('DOMContentLoaded', fixFavoriteLabelsNowrap);
+  window.addEventListener('resize', fixFavoriteLabelsNowrap);
+  setTimeout(fixFavoriteLabelsNowrap, 0);
+})();
+</script>
+
+
+<script id="v112-correct-answer-bullets-script">
+(function(){
+  function splitCorrectHtml(html){
+    return String(html || '')
+      .split(/<br\s*\/?\s*>/i)
+      .map(function(part){ return part.trim(); })
+      .filter(Boolean);
+  }
+
+  function makeBulletsFromHtml(parts){
+    return '<div class="correct-answer-bullets">' + parts.map(function(part){
+      return '<div class="correct-answer-bullet"><span class="correct-answer-bullet-dot">•</span><span class="correct-answer-bullet-text">' + part + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function bulletizeCorrectAnswerNotes(root){
+    root = root || document;
+    root.querySelectorAll('.answer-note .correct-answer-clean').forEach(function(block){
+      if(block.dataset.v112Bullets === '1') return;
+
+      const title = block.querySelector('.correct-answer-title');
+      let titleHtml = '';
+      let answerHtml = '';
+
+      if(title){
+        titleHtml = title.outerHTML;
+        answerHtml = block.innerHTML.replace(title.outerHTML, '');
+        answerHtml = answerHtml.replace(/^\s*<br\s*\/?\s*>\s*/i, '');
+      }else{
+        const raw = block.innerHTML || '';
+        const match = raw.match(/^(.*?Правильн(?:ый ответ|о)\s*:?)\s*<br\s*\/?\s*>([\s\S]*)$/i);
+        if(!match) return;
+        titleHtml = '<span class="correct-answer-title">' + match[1].replace(/<[^>]*>/g, '').trim() + '</span>';
+        answerHtml = match[2];
+      }
+
+      const parts = splitCorrectHtml(answerHtml);
+      if(!parts.length) return;
+
+      block.innerHTML = titleHtml + makeBulletsFromHtml(parts);
+      block.dataset.v112Bullets = '1';
+    });
+  }
+
+  const oldCorrectAnswerBlock = typeof window.correctAnswerBlock === 'function' ? window.correctAnswerBlock : null;
+  if(oldCorrectAnswerBlock && !oldCorrectAnswerBlock.__v112Bullets){
+    window.correctAnswerBlock = function(q, label){
+      const html = (typeof window.correctText === 'function') ? window.correctText(q) : '';
+      if(!html) return '';
+      const parts = splitCorrectHtml(html);
+      const title = label || 'Правильный ответ';
+      return '<div class="small correct-answer-clean" style="margin-top:6px"><span class="correct-answer-title">' +
+        escapeHtml(title) + ':</span>' + makeBulletsFromHtml(parts) + '</div>';
+    };
+    window.correctAnswerBlock.__v112Bullets = true;
+  }
+
+  const oldRenderAnswered = typeof renderAnswered === 'function' ? renderAnswered : null;
+  if(oldRenderAnswered && !oldRenderAnswered.__v112Bullets){
+    renderAnswered = function(){
+      const result = oldRenderAnswered.apply(this, arguments);
+      setTimeout(function(){ bulletizeCorrectAnswerNotes(document); }, 0);
+      return result;
+    };
+    renderAnswered.__v112Bullets = true;
+    try{ window.renderAnswered = renderAnswered; }catch(e){}
+  }
+
+  ['renderQuiz','renderHome','renderFavorites','renderMistakes','render'].forEach(function(name){
+    try{
+      const fn = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof fn === 'function' && !fn.__v112Bullets){
+        const wrapped = function(){
+          const result = fn.apply(this, arguments);
+          setTimeout(function(){ bulletizeCorrectAnswerNotes(document); }, 0);
+          return result;
+        };
+        wrapped.__v112Bullets = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', function(){ bulletizeCorrectAnswerNotes(document); });
+  setTimeout(function(){ bulletizeCorrectAnswerNotes(document); }, 0);
 })();
 </script>
 
