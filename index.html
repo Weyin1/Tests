@@ -7915,5 +7915,387 @@ html.telegram-mini-app.theme-dark .search-open-answer{
 })();
 </script>
 
+
+
+<!-- GIA_TRAINER_BUILD: v103-mobile-menu-quiz-header -->
+<style id="v103-mobile-menu-quiz-header-style">
+/* v103: мобильное меню сворачивается везде, тема — в шапке, кнопки меню в стиле страницы */
+@media(max-width:760px){
+  .top-inner{
+    display:grid!important;
+    grid-template-columns:auto 1fr auto!important;
+    align-items:center!important;
+    gap:10px!important;
+    padding:9px 12px!important;
+  }
+  .brand{grid-column:1!important;align-self:center!important;min-width:0!important;}
+  .brand .logo{width:32px!important;height:32px!important;border-radius:11px!important;font-size:16px!important;}
+  .brand > div:last-child{font-size:19px!important;}
+  .header-actions{
+    grid-column:3!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:8px!important;
+    margin-left:0!important;
+  }
+  .top-menu-toggle,
+  .header-actions .v103-header-theme-toggle{
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+    border-radius:14px!important;
+    display:grid!important;
+    place-items:center!important;
+    padding:0!important;
+    border:1px solid rgba(147,197,253,.50)!important;
+    background:linear-gradient(135deg,#ffffff 0%,#eef4ff 46%,#f5f3ff 100%)!important;
+    color:#1d4ed8!important;
+    box-shadow:0 8px 18px rgba(37,99,235,.12)!important;
+    font-weight:900!important;
+  }
+  .top-menu-toggle:hover,
+  .header-actions .v103-header-theme-toggle:hover{
+    transform:translateY(-1px)!important;
+    border-color:#a5b4fc!important;
+    box-shadow:0 10px 22px rgba(79,70,229,.16)!important;
+  }
+  html.theme-dark .top-menu-toggle,
+  html.theme-dark .header-actions .v103-header-theme-toggle,
+  html.telegram-mini-app.theme-dark .top-menu-toggle,
+  html.telegram-mini-app.theme-dark .header-actions .v103-header-theme-toggle{
+    background:linear-gradient(135deg,#111827 0%,#172554 48%,#2e1065 100%)!important;
+    color:#dbeafe!important;
+    border-color:rgba(139,92,246,.42)!important;
+    box-shadow:0 10px 22px rgba(0,0,0,.24)!important;
+  }
+  .nav{
+    grid-column:1 / -1!important;
+    width:100%!important;
+    display:none!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    margin-top:4px!important;
+    padding:9px!important;
+    border-radius:18px!important;
+    border:1px solid rgba(147,197,253,.38)!important;
+    background:rgba(255,255,255,.82)!important;
+    box-shadow:0 14px 35px rgba(15,23,42,.10)!important;
+  }
+  .top.menu-open .nav{display:grid!important;}
+  .nav button:not(.nav-theme-toggle){
+    width:100%!important;
+    min-height:42px!important;
+    border-radius:14px!important;
+    padding:9px 10px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    background:linear-gradient(135deg,#ffffff 0%,#eef4ff 54%,#f8f5ff 100%)!important;
+    color:#1e3a8a!important;
+    border:1px solid #bfdbfe!important;
+    box-shadow:0 6px 14px rgba(37,99,235,.08)!important;
+    font-weight:850!important;
+  }
+  .nav button:not(.nav-theme-toggle):hover{
+    transform:none!important;
+    background:linear-gradient(135deg,#eef4ff 0%,#e0e7ff 54%,#ede9fe 100%)!important;
+    border-color:#93c5fd!important;
+  }
+  .nav button.active:not(.nav-theme-toggle){
+    background:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%)!important;
+    color:#ffffff!important;
+    border-color:rgba(255,255,255,.34)!important;
+    box-shadow:0 9px 20px rgba(79,70,229,.22)!important;
+  }
+  .nav .nav-theme-toggle{display:none!important;}
+  html.theme-dark .nav,
+  html.telegram-mini-app.theme-dark .nav{
+    background:rgba(15,23,42,.92)!important;
+    border-color:rgba(139,92,246,.34)!important;
+    box-shadow:0 16px 36px rgba(0,0,0,.28)!important;
+  }
+  html.theme-dark .nav button:not(.nav-theme-toggle),
+  html.telegram-mini-app.theme-dark .nav button:not(.nav-theme-toggle){
+    background:linear-gradient(135deg,#111827 0%,#172554 58%,#1e1b4b 100%)!important;
+    color:#dbeafe!important;
+    border-color:rgba(59,130,246,.34)!important;
+    box-shadow:0 8px 18px rgba(0,0,0,.22)!important;
+  }
+  html.theme-dark .nav button.active:not(.nav-theme-toggle),
+  html.telegram-mini-app.theme-dark .nav button.active:not(.nav-theme-toggle){
+    background:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%)!important;
+    color:#ffffff!important;
+    border-color:rgba(167,139,250,.42)!important;
+  }
+}
+@media(min-width:761px){
+  .header-actions .v103-header-theme-toggle{display:none!important;}
+}
+
+/* v103: компактная верхняя строка теста на мобильном */
+@media(max-width:760px){
+  body.quiz-active .quiz-meta{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"left center"!important;
+    align-items:center!important;
+    gap:8px!important;
+    margin:6px 0 8px!important;
+    width:100%!important;
+  }
+  body.quiz-active .quiz-meta-left,
+  body.quiz-active .quiz-meta-center,
+  body.quiz-active .quiz-meta-right{
+    min-height:34px!important;
+    padding:6px 9px!important;
+    border-radius:999px!important;
+    font-size:12px!important;
+    line-height:1.1!important;
+    box-shadow:none!important;
+    white-space:nowrap!important;
+  }
+  body.quiz-active .quiz-meta-left{
+    grid-area:left!important;
+    justify-self:start!important;
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+  body.quiz-active .quiz-meta-left > span:first-child{
+    display:inline-block!important;
+    max-width:44vw!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    vertical-align:bottom!important;
+  }
+  body.quiz-active .quiz-meta-left .v85-meta-dot{margin:0 5px!important;}
+  body.quiz-active .quiz-meta-left .quiz-mode.v85-block-mode{display:inline!important;}
+  body.quiz-active .quiz-meta-center{
+    grid-area:center!important;
+    justify-self:end!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:42vw!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  body.quiz-active .question-nav-wrap{top:52px!important;margin-bottom:7px!important;}
+
+  body.quiz-active.test-exam-active .quiz-meta{
+    grid-template-columns:minmax(0,1fr) auto auto!important;
+    grid-template-areas:"left center right"!important;
+    gap:6px!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-left{
+    grid-area:left!important;
+    justify-self:start!important;
+    max-width:34vw!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-left > span:first-child,
+  body.quiz-active.test-exam-active .quiz-meta-left .test-exam-title{
+    max-width:30vw!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-center{
+    grid-area:center!important;
+    grid-column:auto!important;
+    grid-row:auto!important;
+    justify-self:center!important;
+    width:auto!important;
+    max-width:33vw!important;
+    min-width:0!important;
+    padding:6px 8px!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-right{
+    grid-area:right!important;
+    grid-column:auto!important;
+    justify-self:end!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    width:auto!important;
+    min-width:0!important;
+    padding:0!important;
+    background:transparent!important;
+    border:0!important;
+  }
+  body.quiz-active.test-exam-active .quiz-meta-right #quizTimerPill{
+    min-width:78px!important;
+    padding:6px 8px!important;
+    border-radius:999px!important;
+    font-size:12px!important;
+    margin:0!important;
+  }
+}
+
+/* v103: ровные кнопки переключения блоков на мобильном */
+@media(max-width:760px){
+  .block-nav{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    margin-top:12px!important;
+    padding-top:12px!important;
+  }
+  .block-nav .block-arrow{
+    min-width:0!important;
+    min-height:46px!important;
+    padding:9px 10px!important;
+    border-radius:15px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    background:linear-gradient(135deg,#ffffff,#eef4ff)!important;
+    color:#1d4ed8!important;
+    border:1px solid #bfdbfe!important;
+    box-shadow:0 7px 16px rgba(37,99,235,.09)!important;
+    font-weight:850!important;
+  }
+  .block-nav .block-arrow:disabled{opacity:.42!important;filter:grayscale(.2)!important;}
+  .block-nav .arrow-symbol{
+    width:26px!important;
+    height:26px!important;
+    min-width:26px!important;
+    border-radius:999px!important;
+    font-size:15px!important;
+    background:#ffffff!important;
+    border:1px solid #c7d7fe!important;
+    color:#1d4ed8!important;
+  }
+  .block-nav .arrow-label{
+    display:block!important;
+    font-size:12.5px!important;
+    line-height:1.1!important;
+    text-align:center!important;
+    white-space:normal!important;
+  }
+  .block-nav .prev .arrow-label::after,
+  .block-nav .next .arrow-label::before{content:none!important;}
+  .block-nav .next{flex-direction:row!important;}
+  .block-nav .next .arrow-label{text-align:center!important;}
+  html.theme-dark .block-nav .block-arrow,
+  html.telegram-mini-app.theme-dark .block-nav .block-arrow{
+    background:linear-gradient(135deg,#111827,#172554)!important;
+    color:#dbeafe!important;
+    border-color:rgba(59,130,246,.36)!important;
+    box-shadow:0 8px 18px rgba(0,0,0,.24)!important;
+  }
+  html.theme-dark .block-nav .arrow-symbol,
+  html.telegram-mini-app.theme-dark .block-nav .arrow-symbol{
+    background:#0b1220!important;
+    border-color:rgba(59,130,246,.36)!important;
+    color:#bfdbfe!important;
+  }
+}
+</style>
+<script id="v103-mobile-menu-quiz-header-script">
+(function(){
+  const build='v103-mobile-menu-quiz-header';
+  try{document.documentElement.setAttribute('data-gia-build',build); if(document.body) document.body.setAttribute('data-build',build);}catch(e){}
+
+  function isMobileV103(){return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;}
+  function currentThemeV103(){
+    try{return (store && store.theme)==='light'?'light':'dark';}catch(e){return document.documentElement.classList.contains('theme-light')?'light':'dark';}
+  }
+  function syncThemeButtonsV103(){
+    const dark=currentThemeV103()!=='light';
+    document.querySelectorAll('.theme-toggle').forEach(function(btn){btn.textContent=dark?'☀️':'🌙';});
+  }
+  function toggleThemeV103(e){
+    if(e){e.preventDefault(); e.stopPropagation();}
+    const next=currentThemeV103()==='dark'?'light':'dark';
+    if(typeof applyGiaTheme==='function') applyGiaTheme(next,true);
+    else{
+      try{store.theme=next; if(typeof save==='function') save();}catch(_e){}
+      document.documentElement.classList.toggle('theme-dark',next==='dark');
+      document.documentElement.classList.toggle('theme-light',next==='light');
+    }
+    syncThemeButtonsV103();
+  }
+  function ensureMobileHeaderV103(){
+    try{ if(typeof ensureHeaderV48==='function') ensureHeaderV48(); }catch(e){}
+    const top=document.querySelector('.top');
+    const inner=document.querySelector('.top-inner');
+    const nav=document.querySelector('.nav');
+    if(!top||!inner) return;
+    let actions=inner.querySelector('.header-actions');
+    if(!actions){
+      actions=document.createElement('div');
+      actions.className='header-actions';
+      inner.insertBefore(actions, nav || null);
+    }
+    let menu=actions.querySelector('.top-menu-toggle');
+    if(!menu){
+      menu=document.createElement('button');
+      menu.type='button';
+      menu.className='top-menu-toggle';
+      menu.setAttribute('aria-label','Меню');
+      menu.textContent='☰';
+      actions.appendChild(menu);
+    }
+    let theme=actions.querySelector('.v103-header-theme-toggle');
+    if(!theme){
+      theme=document.createElement('button');
+      theme.type='button';
+      theme.className='theme-toggle v103-header-theme-toggle';
+      theme.setAttribute('aria-label','Тема');
+      actions.insertBefore(theme, menu);
+    }
+    menu.onclick=function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      top.classList.toggle('menu-open');
+    };
+    theme.onclick=toggleThemeV103;
+    if(nav){
+      nav.querySelectorAll('button[data-view]').forEach(function(btn){
+        if(btn.__v103CloseBound) return;
+        btn.__v103CloseBound=true;
+        btn.addEventListener('click',function(){ if(isMobileV103()) top.classList.remove('menu-open'); });
+      });
+    }
+    syncThemeButtonsV103();
+  }
+  function polishQuizHeaderV103(){
+    try{
+      if(!(document.body && document.body.classList.contains('quiz-active'))) return;
+      const left=document.querySelector('.quiz-meta-left');
+      const center=document.querySelector('.quiz-meta-center');
+      if(left) left.setAttribute('title',(left.textContent||'').trim());
+      if(center) center.setAttribute('title',(center.textContent||'').trim());
+    }catch(e){}
+  }
+  function runV103(){ensureMobileHeaderV103(); polishQuizHeaderV103();}
+
+  ['renderHome','renderBlocks','renderBlockPreview','renderQuiz','renderAnswered','renderMistakes','renderFavorites','renderStats','setNav'].forEach(function(name){
+    const old=window[name] || (typeof globalThis!=='undefined'?globalThis[name]:null);
+    if(typeof old==='function' && !old.__v103){
+      const wrapped=function(){const r=old.apply(this,arguments); setTimeout(runV103,0); return r;};
+      wrapped.__v103=true;
+      window[name]=wrapped;
+      try{eval(name+' = window["'+name+'"]');}catch(e){}
+    }
+  });
+  window.addEventListener('resize',runV103,{passive:true});
+  document.addEventListener('click',function(e){
+    try{
+      if(!isMobileV103()) return;
+      const top=document.querySelector('.top');
+      if(!top || !top.classList.contains('menu-open')) return;
+      if(top.contains(e.target)) return;
+      top.classList.remove('menu-open');
+    }catch(_e){}
+  });
+  setTimeout(runV103,0);
+  setTimeout(runV103,120);
+})();
+</script>
+
 </body>
 </html>
