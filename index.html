@@ -1511,6 +1511,191 @@ html.theme-dark .answer-note.bad .correct-answer-bullet-dot{
 }
 </style>
 
+
+<style id="v115-mobile-header-badges-fix">
+/* v115: мобильная версия — реальная перестройка верхней строки теста и бейджей блока */
+@media(max-width:760px){
+  /* Обычная тренировка / зачёт: слева блок, справа номер вопроса */
+  body.quiz-active:not(.test-exam-active) .quiz-meta.v115-mobile-quiz-meta{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"left center"!important;
+    align-items:center!important;
+    gap:8px!important;
+    width:100%!important;
+    margin:5px 0 8px!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta.v115-mobile-quiz-meta .quiz-meta-left{
+    grid-area:left!important;
+    justify-self:start!important;
+    display:flex!important;
+    align-items:center!important;
+    min-width:0!important;
+    max-width:58vw!important;
+    overflow:hidden!important;
+    white-space:nowrap!important;
+    gap:0!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta.v115-mobile-quiz-meta .quiz-meta-center{
+    grid-area:center!important;
+    justify-self:end!important;
+    width:auto!important;
+    max-width:39vw!important;
+    min-width:0!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta .v115-block-title{
+    text-decoration-line:underline!important;
+    text-decoration-thickness:1.7px!important;
+    text-underline-offset:4px!important;
+    font-weight:900!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    max-width:34vw!important;
+    display:inline-block!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta .v115-meta-dot{
+    text-decoration:none!important;
+    opacity:.72!important;
+    margin:0 5px!important;
+    flex:0 0 auto!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta .v115-block-mode{
+    text-decoration:none!important;
+    white-space:nowrap!important;
+    flex:0 0 auto!important;
+  }
+
+  /* В открытом блоке: заголовок и статус сверху, описание и бейджи — на всю ширину */
+  .block-head.v115-mobile-block-head{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:
+      "title actions"
+      "desc desc"
+      "pills pills"!important;
+    align-items:start!important;
+    column-gap:8px!important;
+    row-gap:7px!important;
+    overflow:visible!important;
+  }
+
+  .block-head.v115-mobile-block-head > div:first-child{
+    display:contents!important;
+  }
+
+  .block-head.v115-mobile-block-head h1{
+    grid-area:title!important;
+    min-width:0!important;
+    margin:0!important;
+    font-size:23px!important;
+    line-height:1.15!important;
+  }
+
+  .block-head.v115-mobile-block-head p.muted{
+    grid-area:desc!important;
+    margin:0!important;
+    line-height:1.35!important;
+    max-width:100%!important;
+  }
+
+  .block-head.v115-mobile-block-head .block-head-actions{
+    grid-area:actions!important;
+    justify-self:end!important;
+    align-self:start!important;
+    width:auto!important;
+    min-width:0!important;
+    margin:0!important;
+    display:flex!important;
+    justify-content:flex-end!important;
+  }
+
+  .block-head.v115-mobile-block-head .block-head-actions .pill,
+  .block-head.v115-mobile-block-head .block-head-actions .btn{
+    max-width:42vw!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    line-height:1.12!important;
+    text-align:center!important;
+    padding:7px 8px!important;
+    border-radius:13px!important;
+    font-size:10.8px!important;
+  }
+
+  .block-head.v115-mobile-block-head .controls,
+  .block-head.v115-mobile-block-head .v115-block-pills{
+    grid-area:pills!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    gap:5px!important;
+    flex-wrap:nowrap!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    white-space:nowrap!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding:2px 0 5px!important;
+    margin:0!important;
+  }
+
+  .block-head.v115-mobile-block-head .controls::-webkit-scrollbar,
+  .block-head.v115-mobile-block-head .v115-block-pills::-webkit-scrollbar{
+    display:none!important;
+    width:0!important;
+    height:0!important;
+  }
+
+  .block-head.v115-mobile-block-head .controls .pill,
+  .block-head.v115-mobile-block-head .v115-block-pills .pill{
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:max-content!important;
+    max-width:none!important;
+    white-space:nowrap!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    line-height:1!important;
+    padding:4px 7px!important;
+  }
+}
+
+@media(max-width:380px){
+  body.quiz-active:not(.test-exam-active) .quiz-meta .v115-block-title{
+    max-width:31vw!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta.v115-mobile-quiz-meta .quiz-meta-left{
+    max-width:56vw!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta.v115-mobile-quiz-meta .quiz-meta-center{
+    max-width:41vw!important;
+  }
+
+  .block-head.v115-mobile-block-head .controls .pill,
+  .block-head.v115-mobile-block-head .v115-block-pills .pill{
+    font-size:10.2px!important;
+    padding:3px 6px!important;
+  }
+}
+</style>
+
 </head>
 <body data-build="v96-fix-questions-100-105">
 <header class="top"><div class="top-inner"><div class="brand"><div class="logo">✓</div><div>ГИА</div></div><nav class="nav"><button class="active" data-view="home">Главная</button><button data-view="favorites">Избранное</button><button data-view="mistakes">Ошибки</button><button data-view="stats">Прогресс</button></nav></div></header>
@@ -9536,6 +9721,182 @@ html.telegram-mini-app.theme-dark .search-open-answer{
   setTimeout(runV114,0);
   setTimeout(runV114,120);
   setTimeout(runV114,400);
+})();
+</script>
+
+
+<script id="v115-mobile-header-badges-fix-script">
+(function(){
+  const PHRASE = 'Правильные ответы видны ниже — можно повторить перед тренировкой или зачётом.';
+
+  function isMobileV115(){
+    return !!(window.matchMedia && window.matchMedia('(max-width: 760px)').matches);
+  }
+
+  function escV115(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g,function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  function getSessionV115(){
+    try{
+      if(typeof session !== 'undefined' && session) return session;
+    }catch(e){}
+    return null;
+  }
+
+  function modeTextV115(mode){
+    if(mode === 'exam') return 'Зачёт';
+    if(mode === 'review') return 'Работа над ошибками';
+    return 'Тренировка';
+  }
+
+  function hideMobileBlockHintV115(){
+    if(!isMobileV115()) return;
+    document.querySelectorAll('#app .block-head p.muted, #app p.muted').forEach(function(p){
+      const txt = (p.textContent || '');
+      if(txt.indexOf(PHRASE) === -1) return;
+      p.textContent = txt.replace(PHRASE, '').replace(/\s+/g,' ').trim().replace(/\.$/,'');
+    });
+  }
+
+  function fixMobileBlockHeaderV115(){
+    if(!isMobileV115()) return;
+    const head = document.querySelector('#app .block-head');
+    if(!head) return;
+
+    head.classList.add('v115-mobile-block-head');
+
+    const controls = head.querySelector('div:first-child > .controls, .controls');
+    if(controls){
+      controls.classList.add('v115-block-pills');
+      controls.style.setProperty('display','flex','important');
+      controls.style.setProperty('flex-direction','row','important');
+      controls.style.setProperty('flex-wrap','nowrap','important');
+      controls.style.setProperty('width','100%','important');
+      controls.style.setProperty('max-width','100%','important');
+      controls.style.setProperty('overflow-x','auto','important');
+      controls.style.setProperty('overflow-y','visible','important');
+      controls.style.setProperty('white-space','nowrap','important');
+      controls.querySelectorAll('.pill').forEach(function(pill){
+        pill.style.setProperty('white-space','nowrap','important');
+        pill.style.setProperty('word-break','normal','important');
+        pill.style.setProperty('overflow-wrap','normal','important');
+        pill.style.setProperty('flex','0 0 auto','important');
+        pill.style.setProperty('min-width','max-content','important');
+        pill.style.setProperty('max-width','none','important');
+      });
+    }
+
+    head.querySelectorAll('.block-head-actions .pill, .block-head-actions .pill.exam').forEach(function(p){
+      const t=(p.textContent||'').trim();
+      if(t.indexOf('Будет заверш')!==-1 || t.indexOf('После зач')!==-1 || t.indexOf('Необходимо пройти')!==-1){
+        p.textContent='Необходимо пройти зачёт';
+        p.title='Блок будет завершён только после зачёта';
+      }
+    });
+  }
+
+  function rebuildMobileQuizHeaderV115(){
+    if(!isMobileV115()) return;
+    if(!document.body || !document.body.classList.contains('quiz-active')) return;
+
+    const meta = document.querySelector('#app .quiz-meta');
+    if(!meta) return;
+
+    const s = getSessionV115();
+
+    if(document.body.classList.contains('test-exam-active')){
+      // Экзамен не трогаем здесь: его уже выравнивают предыдущие мобильные патчи.
+      return;
+    }
+
+    let title = '';
+    let mode = '';
+    let pos = '';
+    let total = '';
+
+    if(s && /^Блок\s+\d+/i.test(String(s.title || '').trim())){
+      title = String(s.title || '').trim();
+      mode = modeTextV115(s.mode);
+      pos = Number(s.pos || 0) + 1;
+      total = (s.ids && s.ids.length) ? s.ids.length : '';
+    }else{
+      const raw = (meta.textContent || '').replace(/\s+/g,' ').trim();
+      const m = raw.match(/(Блок\s+\d+)\s*·\s*(Тренировка|Зач[её]т)\s*·\s*вопрос\s*(\d+)\s*из\s*(\d+)/i);
+      if(!m) return;
+      title = m[1];
+      mode = m[2];
+      pos = m[3];
+      total = m[4];
+    }
+
+    if(!title || !/^Блок\s+\d+/i.test(title)) return;
+
+    const desired = title + '|' + mode + '|' + pos + '|' + total;
+    if(meta.dataset.v115Header === desired && meta.querySelector('.v115-block-title')) return;
+
+    meta.dataset.v115Header = desired;
+    meta.classList.add('v115-mobile-quiz-meta');
+    meta.innerHTML =
+      '<span class="quiz-meta-left v115-meta-left">' +
+        '<span class="v115-block-title">' + escV115(title) + '</span>' +
+        '<span class="v115-meta-dot">·</span>' +
+        '<span class="quiz-mode v115-block-mode">' + escV115(mode) + '</span>' +
+      '</span>' +
+      '<span class="quiz-meta-center v115-meta-center">Вопрос ' + escV115(pos) + ' из ' + escV115(total) + '</span>';
+
+    const blockTitle = meta.querySelector('.v115-block-title');
+    if(blockTitle){
+      blockTitle.style.setProperty('text-decoration-line','underline','important');
+      blockTitle.style.setProperty('text-decoration-thickness','1.7px','important');
+      blockTitle.style.setProperty('text-underline-offset','4px','important');
+      blockTitle.style.setProperty('font-weight','900','important');
+    }
+  }
+
+  function runV115(){
+    hideMobileBlockHintV115();
+    fixMobileBlockHeaderV115();
+    rebuildMobileQuizHeaderV115();
+  }
+
+  // Запускаемся после всех старых патчей, которые тоже меняют DOM.
+  ['renderHome','renderBlocks','renderBlockPreview','renderQuiz','renderAnswered','renderFavorites','renderMistakes','renderStats','setNav','openBlock','startQuiz','nextQuestion'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v115MobileHeaderBadgesFix){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(runV115, 0);
+          setTimeout(runV115, 80);
+          setTimeout(runV115, 180);
+          return result;
+        };
+        wrapped.__v115MobileHeaderBadgesFix = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', function(){
+    runV115();
+    const app = document.getElementById('app');
+    if(app && window.MutationObserver){
+      const observer = new MutationObserver(function(){
+        setTimeout(runV115, 0);
+      });
+      observer.observe(app, {childList:true, subtree:false});
+    }
+  });
+
+  window.addEventListener('resize', runV115, {passive:true});
+  setTimeout(runV115, 0);
+  setTimeout(runV115, 150);
+  setTimeout(runV115, 400);
 })();
 </script>
 
