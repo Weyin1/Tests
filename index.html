@@ -1696,6 +1696,82 @@ html.theme-dark .answer-note.bad .correct-answer-bullet-dot{
 }
 </style>
 
+
+<style id="v116-mobile-underline-star-fix">
+/* v116: мобильная версия — видимое подчёркивание блока и возврат ★ рядом с вопросом */
+@media(max-width:760px){
+  /* Надёжное подчёркивание "Блок 1 / Блок 2" слева сверху в тренировке/зачёте */
+  .quiz-meta .quiz-meta-left > span:first-child,
+  .quiz-meta .quiz-meta-left .v115-block-title,
+  .quiz-meta .quiz-meta-left .v116-force-block-title{
+    text-decoration:none!important;
+    border-bottom:2px solid currentColor!important;
+    padding-bottom:2px!important;
+    line-height:1.05!important;
+    display:inline-block!important;
+    font-weight:900!important;
+  }
+
+  .quiz-meta .quiz-meta-left > span:first-child:not(.quiz-mode){
+    border-bottom:2px solid currentColor!important;
+  }
+
+  .quiz-meta .quiz-meta-left .quiz-mode,
+  .quiz-meta .quiz-meta-left > span:nth-child(2),
+  .quiz-meta .quiz-meta-left > span:nth-child(3){
+    border-bottom:0!important;
+    text-decoration:none!important;
+  }
+
+  /* В просмотре блока кнопка ★ снова рядом с текстом вопроса, а не внизу */
+  .preview-q > .row{
+    flex-direction:row!important;
+    align-items:flex-start!important;
+    justify-content:space-between!important;
+    gap:10px!important;
+  }
+
+  .preview-q > .row > div:first-child{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    width:auto!important;
+  }
+
+  .preview-q > .row > div:last-child{
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:40px!important;
+    align-self:flex-start!important;
+    margin-top:0!important;
+    display:flex!important;
+    justify-content:flex-end!important;
+  }
+
+  .preview-q .star[data-fav-preview]{
+    margin-top:0!important;
+    flex:0 0 38px!important;
+  }
+
+  .preview-q h3{
+    margin-right:0!important;
+    padding-right:0!important;
+  }
+}
+
+@media(max-width:380px){
+  .preview-q > .row{
+    gap:8px!important;
+  }
+
+  .preview-q .star[data-fav-preview]{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    flex-basis:36px!important;
+  }
+}
+</style>
+
 </head>
 <body data-build="v96-fix-questions-100-105">
 <header class="top"><div class="top-inner"><div class="brand"><div class="logo">✓</div><div>ГИА</div></div><nav class="nav"><button class="active" data-view="home">Главная</button><button data-view="favorites">Избранное</button><button data-view="mistakes">Ошибки</button><button data-view="stats">Прогресс</button></nav></div></header>
@@ -9897,6 +9973,105 @@ html.telegram-mini-app.theme-dark .search-open-answer{
   setTimeout(runV115, 0);
   setTimeout(runV115, 150);
   setTimeout(runV115, 400);
+})();
+</script>
+
+
+<script id="v116-mobile-underline-star-fix-script">
+(function(){
+  function isMobileV116(){
+    return !!(window.matchMedia && window.matchMedia('(max-width: 760px)').matches);
+  }
+
+  function forceMobileBlockTitleUnderlineV116(){
+    if(!isMobileV116()) return;
+    document.querySelectorAll('.quiz-meta .quiz-meta-left').forEach(function(left){
+      const first = left.querySelector('span:first-child, b:first-child, div:first-child');
+      if(!first) return;
+      const text = (first.textContent || '').trim();
+      if(!/^Блок\s+\d+/i.test(text)) return;
+
+      first.classList.add('v116-force-block-title');
+      first.style.setProperty('text-decoration','none','important');
+      first.style.setProperty('border-bottom','2px solid currentColor','important');
+      first.style.setProperty('padding-bottom','2px','important');
+      first.style.setProperty('line-height','1.05','important');
+      first.style.setProperty('display','inline-block','important');
+      first.style.setProperty('font-weight','900','important');
+
+      Array.from(left.children).forEach(function(child, index){
+        if(index > 0){
+          child.style.setProperty('border-bottom','0','important');
+          child.style.setProperty('text-decoration','none','important');
+        }
+      });
+    });
+  }
+
+  function keepPreviewStarBesideQuestionV116(){
+    if(!isMobileV116()) return;
+    document.querySelectorAll('.preview-q > .row').forEach(function(row){
+      row.style.setProperty('flex-direction','row','important');
+      row.style.setProperty('align-items','flex-start','important');
+      row.style.setProperty('justify-content','space-between','important');
+      row.style.setProperty('gap','10px','important');
+
+      const left = row.children[0];
+      const right = row.children[row.children.length - 1];
+
+      if(left){
+        left.style.setProperty('flex','1 1 auto','important');
+        left.style.setProperty('min-width','0','important');
+        left.style.setProperty('width','auto','important');
+      }
+
+      if(right && right.querySelector && right.querySelector('[data-fav-preview]')){
+        right.style.setProperty('flex','0 0 auto','important');
+        right.style.setProperty('width','auto','important');
+        right.style.setProperty('min-width','38px','important');
+        right.style.setProperty('align-self','flex-start','important');
+        right.style.setProperty('margin-top','0','important');
+        right.style.setProperty('display','flex','important');
+        right.style.setProperty('justify-content','flex-end','important');
+      }
+    });
+  }
+
+  function runV116(){
+    forceMobileBlockTitleUnderlineV116();
+    keepPreviewStarBesideQuestionV116();
+  }
+
+  ['renderQuiz','renderAnswered','renderBlockPreview','openBlock','startQuiz','nextQuestion'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v116MobileUnderlineStarFix){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(runV116, 0);
+          setTimeout(runV116, 100);
+          return result;
+        };
+        wrapped.__v116MobileUnderlineStarFix = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', function(){
+    runV116();
+    const app = document.getElementById('app');
+    if(app && window.MutationObserver){
+      const observer = new MutationObserver(function(){ setTimeout(runV116, 0); });
+      observer.observe(app, {childList:true, subtree:false});
+    }
+  });
+
+  window.addEventListener('resize', runV116, {passive:true});
+  setTimeout(runV116, 0);
+  setTimeout(runV116, 250);
 })();
 </script>
 
