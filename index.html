@@ -2165,6 +2165,44 @@ html.theme-dark .hint .kbd{
 }
 </style>
 
+
+<style id="v125-keep-question-dots-position">
+/* v125: ряд кружочков вопросов не отбрасывается в начало после клика */
+.question-nav{
+  overflow-anchor:none!important;
+}
+.question-nav.v125-restoring{
+  scroll-behavior:auto!important;
+}
+</style>
+
+
+<style id="v126-mobile-dots-not-sticky">
+/* v126: мобильная версия — кружочки вопросов НЕ залипают сверху при прокрутке */
+@media(max-width:760px){
+  body.quiz-active .question-nav-wrap,
+  body.quiz-active.test-exam-active .question-nav-wrap,
+  html.telegram-mini-app body.quiz-active .question-nav-wrap,
+  html.telegram-mini-app body.quiz-active.test-exam-active .question-nav-wrap{
+    position:static!important;
+    top:auto!important;
+    bottom:auto!important;
+    left:auto!important;
+    right:auto!important;
+    z-index:auto!important;
+    transform:none!important;
+    margin-top:0!important;
+  }
+
+  body.quiz-active .question-nav,
+  body.quiz-active.test-exam-active .question-nav{
+    position:static!important;
+    top:auto!important;
+    z-index:auto!important;
+  }
+}
+</style>
+
 </head>
 <body data-build="v96-fix-questions-100-105">
 <header class="top"><div class="top-inner"><div class="brand"><div class="logo">✓</div><div>ГИА</div></div><nav class="nav"><button class="active" data-view="home">Главная</button><button data-view="favorites">Избранное</button><button data-view="mistakes">Ошибки</button><button data-view="stats">Прогресс</button></nav></div></header>
@@ -11276,6 +11314,179 @@ html.telegram-mini-app.theme-dark .search-open-answer{
   window.addEventListener('resize', fixMobileCheckAboveFinish, {passive:true});
   setTimeout(fixMobileCheckAboveFinish, 0);
   setTimeout(fixMobileCheckAboveFinish, 300);
+})();
+</script>
+
+
+<script id="v125-keep-question-dots-position-script">
+(function(){
+  let saved = null;
+  let restoreTimer = null;
+
+  function currentSessionKey(){
+    try{
+      if(!session || !session.ids) return '';
+      return session.ids.join('|');
+    }catch(e){
+      return '';
+    }
+  }
+
+  function rememberQuestionNav(btn){
+    try{
+      const nav = btn && btn.closest ? btn.closest('.question-nav') : document.querySelector('.question-nav');
+      if(!nav) return;
+      const index = btn && btn.dataset ? Number(btn.dataset.qjump) : NaN;
+      const navRect = nav.getBoundingClientRect();
+      const btnRect = btn && btn.getBoundingClientRect ? btn.getBoundingClientRect() : null;
+
+      saved = {
+        key: currentSessionKey(),
+        left: nav.scrollLeft || 0,
+        index: Number.isFinite(index) ? index : -1,
+        relativeLeft: btnRect ? (btnRect.left - navRect.left) : null,
+        at: Date.now()
+      };
+    }catch(e){}
+  }
+
+  function restoreQuestionNav(){
+    if(!saved) return;
+
+    const nav = document.querySelector('.question-nav');
+    if(!nav) return;
+
+    try{
+      if(saved.key && currentSessionKey() && saved.key !== currentSessionKey()) return;
+
+      nav.classList.add('v125-restoring');
+
+      let targetLeft = Number(saved.left) || 0;
+
+      // Сохраняем именно положение ряда. Если браузер после перерисовки
+      // пытается показать активный кружок с начала, возвращаем прежний scrollLeft.
+      nav.scrollLeft = targetLeft;
+
+      if(saved.index >= 0){
+        const btn = nav.querySelector('[data-qjump="' + saved.index + '"]');
+        if(btn && saved.relativeLeft !== null){
+          const navRect = nav.getBoundingClientRect();
+          const btnRect = btn.getBoundingClientRect();
+          const delta = (btnRect.left - navRect.left) - saved.relativeLeft;
+          if(Math.abs(delta) > 2){
+            nav.scrollLeft = Math.max(0, targetLeft + delta);
+          }
+        }
+      }
+
+      setTimeout(function(){
+        try{ nav.classList.remove('v125-restoring'); }catch(e){}
+      }, 180);
+    }catch(e){}
+  }
+
+  function scheduleRestoreQuestionNav(){
+    clearTimeout(restoreTimer);
+    restoreTimer = setTimeout(function(){
+      restoreQuestionNav();
+      requestAnimationFrame(function(){
+        restoreQuestionNav();
+        setTimeout(restoreQuestionNav, 60);
+        setTimeout(restoreQuestionNav, 180);
+      });
+    }, 0);
+  }
+
+  document.addEventListener('pointerdown', function(e){
+    const btn = e.target && e.target.closest ? e.target.closest('[data-qjump]') : null;
+    if(btn) rememberQuestionNav(btn);
+  }, true);
+
+  document.addEventListener('touchstart', function(e){
+    const btn = e.target && e.target.closest ? e.target.closest('[data-qjump]') : null;
+    if(btn) rememberQuestionNav(btn);
+  }, {capture:true, passive:true});
+
+  document.addEventListener('click', function(e){
+    const btn = e.target && e.target.closest ? e.target.closest('[data-qjump]') : null;
+    if(btn){
+      rememberQuestionNav(btn);
+      scheduleRestoreQuestionNav();
+    }
+  }, true);
+
+  document.addEventListener('click', function(e){
+    const btn = e.target && e.target.closest ? e.target.closest('[data-qjump]') : null;
+    if(btn) scheduleRestoreQuestionNav();
+  }, false);
+
+  ['renderQuiz','renderAnswered','refreshQuestionNav','refreshQNavV48','nextQuestion','chooseOption','checkMulti'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v125KeepDotsPosition){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          if(saved) scheduleRestoreQuestionNav();
+          return result;
+        };
+        wrapped.__v125KeepDotsPosition = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const nav = document.querySelector('.question-nav');
+    if(nav && saved) restoreQuestionNav();
+  });
+})();
+</script>
+
+
+<script id="v126-mobile-dots-not-sticky-script">
+(function(){
+  function isMobileV126(){
+    return !!(window.matchMedia && window.matchMedia('(max-width: 760px)').matches);
+  }
+
+  function unstickMobileQuestionDots(){
+    if(!isMobileV126()) return;
+
+    document.querySelectorAll('.question-nav-wrap,.question-nav').forEach(function(el){
+      el.style.setProperty('position','static','important');
+      el.style.setProperty('top','auto','important');
+      el.style.setProperty('bottom','auto','important');
+      el.style.setProperty('left','auto','important');
+      el.style.setProperty('right','auto','important');
+      el.style.setProperty('z-index','auto','important');
+      el.style.setProperty('transform','none','important');
+    });
+  }
+
+  ['renderQuiz','renderAnswered','refreshQuestionNav','refreshQNavV48','nextQuestion','chooseOption','checkMulti'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v126MobileDotsNotSticky){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(unstickMobileQuestionDots, 0);
+          setTimeout(unstickMobileQuestionDots, 100);
+          return result;
+        };
+        wrapped.__v126MobileDotsNotSticky = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('DOMContentLoaded', unstickMobileQuestionDots);
+  window.addEventListener('resize', unstickMobileQuestionDots, {passive:true});
+  setTimeout(unstickMobileQuestionDots, 0);
+  setTimeout(unstickMobileQuestionDots, 300);
 })();
 </script>
 
