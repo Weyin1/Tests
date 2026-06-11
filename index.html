@@ -10075,5 +10075,272 @@ html.telegram-mini-app.theme-dark .search-open-answer{
 })();
 </script>
 
+
+<script id="v117-telegram-cloud-sync">
+/* v117: тихая синхронизация прогресса через Telegram CloudStorage */
+(function(){
+  const PREFIX = 'gia_progress_v1';
+  const CHUNK_SIZE = 3500;
+  const SYNC_MIN_DELAY = 900;
+  const FOCUS_SYNC_DELAY = 2500;
+
+  let cloudLoaded = false;
+  let cloudLoading = false;
+  let saveTimer = null;
+  let saving = false;
+  let pendingSave = false;
+  let lastCloudLoadAt = 0;
+  let initialLocalSavedAt = 0;
+
+  try{
+    if(typeof store !== 'undefined' && store){
+      initialLocalSavedAt = Number(store._savedAt || 0) || 0;
+    }
+  }catch(e){}
+
+  function tgCloudV117(){
+    try{
+      const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+      return tg && tg.CloudStorage ? tg.CloudStorage : null;
+    }catch(e){
+      return null;
+    }
+  }
+
+  function hasCloudV117(){
+    const c = tgCloudV117();
+    return !!(c && c.getItem && c.setItem);
+  }
+
+  function tgSetItemV117(key, value){
+    return new Promise(resolve=>{
+      try{
+        const c = tgCloudV117();
+        if(!c || !c.setItem) return resolve(false);
+        c.setItem(key, value, function(err){ resolve(!err); });
+      }catch(e){ resolve(false); }
+    });
+  }
+
+  function tgGetItemV117(key){
+    return new Promise(resolve=>{
+      try{
+        const c = tgCloudV117();
+        if(!c || !c.getItem) return resolve(null);
+        c.getItem(key, function(err, value){ resolve(err ? null : value); });
+      }catch(e){ resolve(null); }
+    });
+  }
+
+  function tgGetItemsV117(keys){
+    return new Promise(resolve=>{
+      try{
+        const c = tgCloudV117();
+        if(!c) return resolve({});
+        if(c.getItems){
+          c.getItems(keys, function(err, values){ resolve(err ? {} : (values || {})); });
+        }else{
+          Promise.all(keys.map(k=>tgGetItemV117(k))).then(values=>{
+            const out = {};
+            keys.forEach((k,i)=>out[k]=values[i]);
+            resolve(out);
+          });
+        }
+      }catch(e){ resolve({}); }
+    });
+  }
+
+  function nowV117(){
+    return Date.now ? Date.now() : +new Date();
+  }
+
+  function localSaveV117(){
+    try{
+      if(typeof store === 'undefined' || !store) return;
+      localStorage.setItem(LS, JSON.stringify(store));
+    }catch(e){}
+  }
+
+  function safeNormalizeV117(obj){
+    try{
+      if(typeof normalizeStore === 'function') return normalizeStore(obj || {});
+    }catch(e){}
+    return obj || {};
+  }
+
+  function getStoreSavedAtV117(s){
+    return Number((s && s._savedAt) || 0) || 0;
+  }
+
+  async function writeCloudV117(){
+    if(!hasCloudV117()) return false;
+    if(typeof store === 'undefined' || !store) return false;
+
+    saving = true;
+    try{
+      if(!store._savedAt) store._savedAt = nowV117();
+      const text = JSON.stringify(store);
+      const chunks = [];
+      for(let i=0; i<text.length; i+=CHUNK_SIZE){
+        chunks.push(text.slice(i, i + CHUNK_SIZE));
+      }
+
+      await Promise.all(chunks.map((part, i)=>tgSetItemV117(`${PREFIX}_${i}`, part)));
+      await tgSetItemV117(`${PREFIX}_meta`, JSON.stringify({
+        v: 2,
+        n: chunks.length,
+        ts: store._savedAt || nowV117()
+      }));
+
+      pendingSave = false;
+      return true;
+    }catch(e){
+      pendingSave = true;
+      return false;
+    }finally{
+      saving = false;
+    }
+  }
+
+  function scheduleCloudSaveV117(delay){
+    if(!hasCloudV117()) return;
+    pendingSave = true;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      if(saving){
+        scheduleCloudSaveV117(SYNC_MIN_DELAY);
+        return;
+      }
+      writeCloudV117();
+    }, Math.max(150, delay == null ? SYNC_MIN_DELAY : delay));
+  }
+
+  async function readCloudV117(){
+    if(!hasCloudV117()) return null;
+
+    const metaText = await tgGetItemV117(`${PREFIX}_meta`);
+    if(!metaText) return null;
+
+    let meta = null;
+    try{ meta = JSON.parse(metaText); }catch(e){ return null; }
+
+    const n = Math.max(0, Math.min(1023, Number(meta.n) || 0));
+    if(!n) return null;
+
+    const keys = Array.from({length:n}, (_,i)=>`${PREFIX}_${i}`);
+    const values = await tgGetItemsV117(keys);
+    const text = keys.map((k,i)=>{
+      if(Array.isArray(values)) return values[i] || '';
+      return values[k] || '';
+    }).join('');
+
+    if(!text) return null;
+
+    let parsed = null;
+    try{ parsed = JSON.parse(text); }catch(e){ return null; }
+
+    const cloudStore = safeNormalizeV117(parsed);
+    if(!cloudStore._savedAt && meta.ts) cloudStore._savedAt = Number(meta.ts) || 0;
+    return cloudStore;
+  }
+
+  async function loadCloudV117(force){
+    if(!hasCloudV117()) return;
+    if(cloudLoading) return;
+
+    const t = nowV117();
+    if(!force && t - lastCloudLoadAt < FOCUS_SYNC_DELAY) return;
+
+    cloudLoading = true;
+    lastCloudLoadAt = t;
+
+    try{
+      const cloudStore = await readCloudV117();
+      if(!cloudStore){
+        cloudLoaded = true;
+        if(pendingSave) scheduleCloudSaveV117(200);
+        return;
+      }
+
+      const cloudTs = getStoreSavedAtV117(cloudStore);
+      const localTs = (typeof store !== 'undefined' && store) ? getStoreSavedAtV117(store) : 0;
+
+      if(cloudTs > localTs){
+        store = cloudStore;
+        localSaveV117();
+        if(typeof session !== 'undefined' && !session && typeof render === 'function'){
+          render();
+        }else if(typeof currentView !== 'undefined' && currentView && typeof render === 'function'){
+          render();
+        }
+      }else if(localTs > cloudTs){
+        scheduleCloudSaveV117(250);
+      }else if(localTs === 0 && cloudTs === 0 && initialLocalSavedAt === 0){
+        // Ничего не делаем: пустое локальное и пустое облако.
+      }
+
+      cloudLoaded = true;
+      if(pendingSave) scheduleCloudSaveV117(250);
+    }catch(e){
+      cloudLoaded = true;
+    }finally{
+      cloudLoading = false;
+    }
+  }
+
+  // Подменяем старую загрузку/сохранение Telegram, чтобы оно было тихим и с задержкой.
+  try{
+    saveStoreToTelegram = function(){ scheduleCloudSaveV117(SYNC_MIN_DELAY); };
+    window.saveStoreToTelegram = saveStoreToTelegram;
+  }catch(e){}
+
+  try{
+    loadStoreFromTelegram = function(){ return loadCloudV117(true); };
+    window.loadStoreFromTelegram = loadStoreFromTelegram;
+  }catch(e){}
+
+  // Подменяем общий save: локально сохраняется сразу, в Telegram — с debounce.
+  try{
+    if(typeof save === 'function' && !save.__v117CloudSync){
+      const oldSave = save;
+      save = function(){
+        try{
+          if(typeof store !== 'undefined' && store){
+            store._savedAt = nowV117();
+            localStorage.setItem(LS, JSON.stringify(store));
+          }else{
+            oldSave.apply(this, arguments);
+          }
+        }catch(e){
+          try{ oldSave.apply(this, arguments); }catch(_e){}
+        }
+
+        scheduleCloudSaveV117(cloudLoaded ? SYNC_MIN_DELAY : 1600);
+      };
+      save.__v117CloudSync = true;
+      window.save = save;
+    }
+  }catch(e){}
+
+  // Быстрая тихая загрузка после старта.
+  setTimeout(function(){ loadCloudV117(true); }, 0);
+  setTimeout(function(){ loadCloudV117(true); }, 600);
+
+  // Если пользователь вернулся к приложению на втором устройстве — подтягиваем более свежую копию.
+  window.addEventListener('focus', function(){ loadCloudV117(false); }, {passive:true});
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden) loadCloudV117(false);
+    else if(pendingSave) writeCloudV117();
+  });
+
+  // Перед закрытием пытаемся дописать локальные изменения.
+  window.addEventListener('pagehide', function(){
+    try{
+      if(pendingSave && hasCloudV117()) writeCloudV117();
+    }catch(e){}
+  });
+})();
+</script>
+
 </body>
 </html>
