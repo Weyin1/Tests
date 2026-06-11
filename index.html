@@ -1422,6 +1422,95 @@ html.theme-dark .answer-note.bad .correct-answer-bullet-dot{
 }
 </style>
 
+
+<style id="v114-mobile-block-fixes">
+/* v114: точечные мобильные исправления блока и верхней строки теста */
+@media(max-width:760px){
+  /* В открытом блоке бейджи/описания идут в одну строку, а не друг под другом */
+  .block-head .controls,
+  .block-head .v114-mobile-block-pills{
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    gap:5px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    white-space:nowrap!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding-bottom:2px!important;
+  }
+
+  .block-head .controls::-webkit-scrollbar,
+  .block-head .v114-mobile-block-pills::-webkit-scrollbar{
+    display:none!important;
+    width:0!important;
+    height:0!important;
+  }
+
+  .block-head .controls .pill,
+  .block-head .v114-mobile-block-pills .pill{
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:max-content!important;
+    max-width:none!important;
+    white-space:nowrap!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  /* Статус справа у блока не переносится вниз по словам */
+  .block-head-actions .pill,
+  .block-head-actions .pill.exam{
+    white-space:nowrap!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    max-width:none!important;
+    width:auto!important;
+    min-width:max-content!important;
+    flex:0 0 auto!important;
+    font-size:10.8px!important;
+    line-height:1!important;
+    padding:7px 8px!important;
+  }
+
+  /* Подчёркивание названия блока сверху в режиме тренировки/зачёта */
+  body.quiz-active:not(.test-exam-active) .quiz-meta-left .v114-block-title,
+  body.quiz-active:not(.test-exam-active) .quiz-meta-left .mobile-block-title-underlined,
+  body.quiz-active:not(.test-exam-active) .quiz-meta-left > span:first-child{
+    text-decoration-line:underline!important;
+    text-decoration-thickness:1.7px!important;
+    text-underline-offset:4px!important;
+    font-weight:850!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta-left .quiz-mode,
+  body.quiz-active:not(.test-exam-active) .quiz-meta-left .v114-block-mode{
+    text-decoration:none!important;
+    white-space:nowrap!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta-left .v114-meta-dot{
+    text-decoration:none!important;
+    opacity:.75!important;
+    margin:0 4px!important;
+  }
+
+  body.quiz-active:not(.test-exam-active) .quiz-meta-left{
+    display:flex!important;
+    align-items:center!important;
+    gap:0!important;
+    min-width:0!important;
+  }
+}
+</style>
+
 </head>
 <body data-build="v96-fix-questions-100-105">
 <header class="top"><div class="top-inner"><div class="brand"><div class="logo">✓</div><div>ГИА</div></div><nav class="nav"><button class="active" data-view="home">Главная</button><button data-view="favorites">Избранное</button><button data-view="mistakes">Ошибки</button><button data-view="stats">Прогресс</button></nav></div></header>
@@ -9289,6 +9378,164 @@ html.telegram-mini-app.theme-dark .search-open-answer{
 
   document.addEventListener('DOMContentLoaded', function(){ bulletizeCorrectAnswerNotes(document); });
   setTimeout(function(){ bulletizeCorrectAnswerNotes(document); }, 0);
+})();
+</script>
+
+
+<script id="v114-mobile-block-fixes-script">
+(function(){
+  const PHRASE = 'Правильные ответы видны ниже — можно повторить перед тренировкой или зачётом.';
+
+  function isMobileV114(){
+    return !!(window.matchMedia && window.matchMedia('(max-width: 760px)').matches);
+  }
+
+  function escV114(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g,function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  function sessionV114(){
+    try{
+      if(typeof session !== 'undefined' && session) return session;
+    }catch(e){}
+    return null;
+  }
+
+  function modeLabelV114(s){
+    try{
+      if(!s) return '';
+      if(s.mode === 'exam') return 'Зачёт';
+      if(s.mode === 'train') return 'Тренировка';
+      return '';
+    }catch(e){return '';}
+  }
+
+  function trimMobileBlockHintV114(){
+    const mobile = isMobileV114();
+    document.querySelectorAll('#app .block-head p.muted, #app p.muted').forEach(function(p){
+      const txt = (p.textContent || '');
+      const original = p.dataset.v114OriginalText || txt;
+      if(original.indexOf(PHRASE) === -1 && txt.indexOf(PHRASE) === -1) return;
+
+      if(!p.dataset.v114OriginalText) p.dataset.v114OriginalText = original;
+
+      if(mobile){
+        let cleaned = original.replace(PHRASE,'').replace(/\s+/g,' ').trim();
+        cleaned = cleaned.replace(/\s+\./g,'.').replace(/\.\s*$/,'.');
+        p.textContent = cleaned;
+        p.classList.add('v114-mobile-hint-trimmed');
+      }else{
+        p.textContent = p.dataset.v114OriginalText;
+        p.classList.remove('v114-mobile-hint-trimmed');
+      }
+    });
+  }
+
+  function keepBlockDescriptionsOneLineV114(){
+    if(!isMobileV114()) return;
+    document.querySelectorAll('#app .block-head .controls').forEach(function(row){
+      row.classList.add('v114-mobile-block-pills');
+      row.style.setProperty('display','flex','important');
+      row.style.setProperty('flex-direction','row','important');
+      row.style.setProperty('flex-wrap','nowrap','important');
+      row.style.setProperty('white-space','nowrap','important');
+      row.style.setProperty('overflow-x','auto','important');
+      row.style.setProperty('overflow-y','hidden','important');
+    });
+
+    document.querySelectorAll('#app .block-head .controls .pill, #app .block-head-actions .pill').forEach(function(pill){
+      pill.style.setProperty('white-space','nowrap','important');
+      pill.style.setProperty('word-break','normal','important');
+      pill.style.setProperty('overflow-wrap','normal','important');
+      pill.style.setProperty('flex','0 0 auto','important');
+      pill.style.setProperty('min-width','max-content','important');
+      pill.style.setProperty('max-width','none','important');
+    });
+  }
+
+  function underlineMobileBlockTitleV114(){
+    if(!isMobileV114()) return;
+    const body = document.body;
+    if(!body || !body.classList.contains('quiz-active') || body.classList.contains('test-exam-active')) return;
+
+    const s = sessionV114();
+    const left = document.querySelector('.quiz-meta-left');
+    if(!left || !s) return;
+
+    const title = String(s.title || '').trim();
+    if(!/^Блок\s+\d+/i.test(title)) return;
+
+    const mode = modeLabelV114(s);
+
+    // Перерисовываем левую часть один раз в правильную структуру:
+    // Блок — подчёркнут, режим — нет.
+    const already = left.querySelector('.v114-block-title');
+    if(!already || (already.textContent || '').trim() !== title){
+      left.innerHTML = '<span class="v114-block-title mobile-block-title-underlined">' + escV114(title) + '</span>' +
+        (mode ? '<span class="v114-meta-dot">·</span><span class="quiz-mode v114-block-mode">' + escV114(mode) + '</span>' : '');
+    }else{
+      already.classList.add('mobile-block-title-underlined');
+    }
+
+    const titleEl = left.querySelector('.v114-block-title') || left.querySelector('span:first-child');
+    if(titleEl){
+      titleEl.style.setProperty('text-decoration-line','underline','important');
+      titleEl.style.setProperty('text-decoration-thickness','1.7px','important');
+      titleEl.style.setProperty('text-underline-offset','4px','important');
+      titleEl.style.setProperty('font-weight','850','important');
+    }
+  }
+
+  function runV114(){
+    trimMobileBlockHintV114();
+    keepBlockDescriptionsOneLineV114();
+    underlineMobileBlockTitleV114();
+  }
+
+  // Оборачиваем реальные функции рендера, а не только общий render.
+  ['renderHome','renderBlocks','renderBlockPreview','renderQuiz','renderAnswered','renderFavorites','renderMistakes','renderStats','setNav','openBlock','startQuiz'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v114MobileFixes){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          setTimeout(runV114,0);
+          setTimeout(runV114,80);
+          return result;
+        };
+        wrapped.__v114MobileFixes = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  let scheduled = false;
+  function scheduleV114(){
+    if(scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(function(){
+      scheduled = false;
+      runV114();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    runV114();
+    const app = document.getElementById('app');
+    if(app && window.MutationObserver){
+      const mo = new MutationObserver(scheduleV114);
+      mo.observe(app,{childList:true,subtree:false});
+    }
+  });
+
+  window.addEventListener('resize',runV114,{passive:true});
+  setTimeout(runV114,0);
+  setTimeout(runV114,120);
+  setTimeout(runV114,400);
 })();
 </script>
 
