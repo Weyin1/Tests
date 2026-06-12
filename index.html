@@ -2088,7 +2088,7 @@ html.theme-dark .hint .kbd{
 
 
 <style id="v123-click-card-bold">
-/* v123: "клик по карточке" в подсказке выделен жирным */
+/* v123: "<strong class="click-card-bold">клик по карточке</strong>" в подсказке выделен жирным */
 .next-hint-one-line .click-card-bold,
 .quiz-footer-hint .click-card-bold,
 .hint .click-card-bold{
@@ -2363,7 +2363,7 @@ function renderStats(){setNav('stats'); const st=topStats(); const blocks=allBlo
 function blockRow(b){const s=blockStats(b.ids); const done=isBlockDone(b); const opened=percent(s.seen,b.ids.length); return `<tr><td><b>${b.title}</b><div class="small muted">${b.from}–${b.to}</div></td><td>${done?'<span class="pill ok">завершён</span>':'<span class="pill warn">в процессе</span>'}</td><td><div class="bar"><span style="width:${opened}%"></span></div><div class="tiny muted">${s.seen}/${b.ids.length}</div></td><td>${s.attempts?s.acc+'%':'—'}</td><td>${s.bad?`<span class="pill bad">${s.bad}</span>`:'—'}</td><td><button class="btn" data-open-block="${b.start}">Открыть</button></td></tr>`;}
 function startQuiz(ids,title,mode='train',meta={}){ids=ids.filter(id=>byId.has(id)); if(!ids.length){toast('Нет вопросов для запуска'); return;} if(store.shuffle && ids.length>1) ids=shuffle(ids); session={ids,title,mode,meta,pos:0,ok:0,bad:0,answered:false,selected:[],mistakes:[],answers:{}}; renderQuiz(); window.scrollTo({top:0,behavior:'auto'});}
 function modeLabel(){if(!session)return ''; return session.mode==='exam'?'Зачёт':session.mode==='review'?'Работа над ошибками':'Тренировка';}
-function renderQuiz(){closeLastQuestionOverlays(); const app=$('#app'); const q=byId.get(session.ids[session.pos]); const multi=q.a.length>1; const pct=(session.pos)/session.ids.length*100; app.innerHTML=`<section class="quiz-shell"><div class="progress"><span style="width:${pct}%"></span></div><div class="quiz-meta"><span>${escapeHtml(session.title)} · ${modeLabel()} · вопрос ${session.pos+1} из ${session.ids.length}</span><span>${pageText(q)} ${q.r>1?'· повторов: '+q.r:''}</span></div><div class="question-card" id="qcard"><div class="q-head"><h1 class="q-title">${escapeHtml(q.q)}</h1><button class="star ${isFav(q.id)?'on':''}" id="qstar">★</button></div><div class="pill ${multi?'warn':'blue'}">${multi?'Можно выбрать несколько вариантов':'Один правильный вариант'}</div><div class="options">${q.o.map((o,i)=>optionHtml(q,i)).join('')}</div><div id="note"></div><div class="quiz-actions"><button class="btn" id="exit">Назад</button><div style="display:flex;gap:8px;flex-wrap:wrap">${multi?'<button class="btn primary" id="check">Проверить</button>':''}<button class="btn primary hidden" id="next">Дальше</button></div></div><div class="hint">После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.</div></div></section>`; $('#qstar').onclick=()=>{toggleFav(q.id); $('#qstar').classList.toggle('on',isFav(q.id));}; $('#exit').onclick=()=>exitQuiz(); $all('.opt').forEach(b=>b.onclick=()=>chooseOption(Number(b.dataset.i))); if(multi) $('#check').onclick=checkMulti; $('#qcard').addEventListener('click',e=>{if(!session||!session.answered)return; if(e.target.closest('#qstar,#exit,#next,#check,.opt'))return; nextQuestion();});}
+function renderQuiz(){closeLastQuestionOverlays(); const app=$('#app'); const q=byId.get(session.ids[session.pos]); const multi=q.a.length>1; const pct=(session.pos)/session.ids.length*100; app.innerHTML=`<section class="quiz-shell"><div class="progress"><span style="width:${pct}%"></span></div><div class="quiz-meta"><span>${escapeHtml(session.title)} · ${modeLabel()} · вопрос ${session.pos+1} из ${session.ids.length}</span><span>${pageText(q)} ${q.r>1?'· повторов: '+q.r:''}</span></div><div class="question-card" id="qcard"><div class="q-head"><h1 class="q-title">${escapeHtml(q.q)}</h1><button class="star ${isFav(q.id)?'on':''}" id="qstar">★</button></div><div class="pill ${multi?'warn':'blue'}">${multi?'Можно выбрать несколько вариантов':'Один правильный вариант'}</div><div class="options">${q.o.map((o,i)=>optionHtml(q,i)).join('')}</div><div id="note"></div><div class="quiz-actions"><button class="btn" id="exit">Назад</button><div style="display:flex;gap:8px;flex-wrap:wrap">${multi?'<button class="btn primary" id="check">Проверить</button>':''}<button class="btn primary hidden" id="next">Дальше</button></div></div><div class="hint">После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.</div></div></section>`; $('#qstar').onclick=()=>{toggleFav(q.id); $('#qstar').classList.toggle('on',isFav(q.id));}; $('#exit').onclick=()=>exitQuiz(); $all('.opt').forEach(b=>b.onclick=()=>chooseOption(Number(b.dataset.i))); if(multi) $('#check').onclick=checkMulti; $('#qcard').addEventListener('click',e=>{if(!session||!session.answered)return; if(e.target.closest('#qstar,#exit,#next,#check,.opt'))return; nextQuestion();});}
 function exitQuiz(){const meta=session?session.meta:{}; confirmLeaveExam(()=>{session=null; if(meta&&meta.blockStart!==undefined){openBlock(meta.blockStart)} else {setNav('home');renderHome();}});}
 function optionHtml(q,i){let cls='opt'; if(session.selected.includes(i)) cls+=' selected'; if(session.answered){cls=optionHtmlClass(q,i);} return `<button class="${cls}" data-i="${i}" ${session.answered?'disabled':''}><span class="letter">${letters[i]||i+1}</span><span>${escapeHtml(q.o[i])}</span></button>`;}
 function chooseOption(i){if(session.answered)return; const q=byId.get(session.ids[session.pos]); if(q.a.length>1){ if(session.selected.includes(i)) session.selected=session.selected.filter(x=>x!==i); else session.selected.push(i); renderQuiz(); return;} session.selected=[i]; finishAnswer(equalSets(session.selected,q.a));}
@@ -2391,7 +2391,7 @@ function renderAnswered(ok){
  const check=$('#check'); if(check) check.classList.add('hidden');
  const next=$('#next'); next.textContent=isLast?'Показать результат':'Дальше'; next.classList.remove('hidden'); next.onclick=nextQuestion;
  const finishInline=$('#finishInline'); if(finishInline) finishInline.onclick=e=>{e.preventDefault();e.stopPropagation();nextQuestion();};
- const hint=$('.hint'); if(hint) hint.innerHTML=isLast?'После ответа: нажмите «Показать результат», <span class="kbd">Enter</span>, <span class="kbd">Space</span> или кликните по карточке.':'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+ const hint=$('.hint'); if(hint) hint.innerHTML=isLast?'После ответа: нажмите «Показать результат», <span class="kbd">Enter</span>, <span class="kbd">Space</span> или кликните по карточке.':'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
  const prog=$('.progress span'); if(prog) prog.style.width=((session.pos+1)/session.ids.length*100)+'%';
 }
 
@@ -2594,7 +2594,7 @@ renderHome();
     if(finishInline){ finishInline.onclick = function(e){ e.preventDefault(); e.stopPropagation(); renderSummary(); }; }
     const hint = document.querySelector('.hint');
     if(hint){
-      hint.innerHTML = isLast ? 'После ответа: нажмите «Показать результат», <span class="kbd">Enter</span>, <span class="kbd">Space</span> или кликните по карточке.' : 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+      hint.innerHTML = isLast ? 'После ответа: нажмите «Показать результат», <span class="kbd">Enter</span>, <span class="kbd">Space</span> или кликните по карточке.' : 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
     }
     const prog = document.querySelector('.progress span');
     if(prog) prog.style.width = ((session.pos+1)/session.ids.length*100)+'%';
@@ -2815,7 +2815,7 @@ renderHome();
 
     const hint = document.querySelector('.hint');
     if(hint){
-      hint.innerHTML = last ? 'Итог откроется автоматически. Также можно нажать «Показать результат», <span class="kbd">Enter</span> или <span class="kbd">Space</span>.' : 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+      hint.innerHTML = last ? 'Итог откроется автоматически. Также можно нажать «Показать результат», <span class="kbd">Enter</span> или <span class="kbd">Space</span>.' : 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
     }
 
     const prog = document.querySelector('.progress span');
@@ -3291,7 +3291,7 @@ renderHome();
     const pct = answeredCount() / session.ids.length * 100;
     const quizInfo = `<div class="quiz-meta-left"><span>${escapeHtml(session.title)}</span><span>·</span><span class="quiz-mode">${modeLabel()}</span></div><div class="quiz-meta-center">Вопрос ${session.pos + 1} из ${session.ids.length}</div><div class="quiz-meta-spacer" aria-hidden="true"></div>`;
 
-    app.innerHTML = `<section class="quiz-shell"><div class="progress"><span style="width:${pct}%"></span></div><div class="quiz-meta">${quizInfo}</div>${renderQuestionNav()}<div class="question-card" id="qcard"><div class="q-head"><h1 class="q-title">${escapeHtml(q.q)}</h1><button class="star ${isFav(q.id) ? 'on' : ''}" id="qstar">★</button></div><div class="pill ${multi ? 'warn' : 'blue'}">${multi ? 'Можно выбрать несколько вариантов' : 'Один правильный вариант'}</div><div class="options">${q.o.map((o,i) => optionHtml(q,i)).join('')}</div><div id="note"></div><div class="quiz-actions single-finish"><button class="btn finish-test-btn" id="finishTest">Завершить тест</button>${multi && !session.answered ? '<div class="check-wrap"><button class="btn primary" id="check">Проверить</button></div>' : ''}</div><div class="hint">После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.</div></div></section>`;
+    app.innerHTML = `<section class="quiz-shell"><div class="progress"><span style="width:${pct}%"></span></div><div class="quiz-meta">${quizInfo}</div>${renderQuestionNav()}<div class="question-card" id="qcard"><div class="q-head"><h1 class="q-title">${escapeHtml(q.q)}</h1><button class="star ${isFav(q.id) ? 'on' : ''}" id="qstar">★</button></div><div class="pill ${multi ? 'warn' : 'blue'}">${multi ? 'Можно выбрать несколько вариантов' : 'Один правильный вариант'}</div><div class="options">${q.o.map((o,i) => optionHtml(q,i)).join('')}</div><div id="note"></div><div class="quiz-actions single-finish"><button class="btn finish-test-btn" id="finishTest">Завершить тест</button>${multi && !session.answered ? '<div class="check-wrap"><button class="btn primary" id="check">Проверить</button></div>' : ''}</div><div class="hint">После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.</div></div></section>`;
 
     const star = document.getElementById('qstar');
     if(star) star.onclick = () => { toggleFav(q.id); star.classList.toggle('on', isFav(q.id)); };
@@ -3365,7 +3365,7 @@ renderHome();
 
     const hint = document.querySelector('.hint');
     if(hint){
-      hint.innerHTML = 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+      hint.innerHTML = 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
     }
 
     const prog = document.querySelector('.progress span');
@@ -3512,7 +3512,7 @@ renderHome();
 
       const hint = document.querySelector('.hint');
       if(hint){
-        hint.innerHTML = 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+        hint.innerHTML = 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
       }
 
       const prog = document.querySelector('.progress span');
@@ -3583,7 +3583,7 @@ renderHome();
 
       const hint = document.querySelector('.hint');
       if(hint){
-        hint.innerHTML = 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+        hint.innerHTML = 'После ответа: <span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
       }
 
       const prog = document.querySelector('.progress span');
@@ -3934,7 +3934,7 @@ renderHome();
     if(saved){ session.answered=true; session.selected=Array.isArray(saved.selected)?[...saved.selected]:[]; }
     else if(!session.answered){ const draft=session.drafts[q.id]; if(Array.isArray(draft)) session.selected=[...draft]; }
     const multi=q.a.length>1; const pct=answeredCountV48()/session.ids.length*100;
-    app.innerHTML=`<section class="quiz-shell"><div class="progress"><span style="width:${pct}%"></span></div><div class="quiz-meta"><div class="quiz-meta-left"><span>${escapeHtml(session.title)}</span><span>·</span><span class="quiz-mode">${modeLabel()}</span></div><div class="quiz-meta-center">Вопрос ${session.pos+1} из ${session.ids.length}</div><div class="quiz-meta-spacer" aria-hidden="true"></div></div>${renderQNavV48()}<div class="question-card" id="qcard"><div class="q-head"><h1 class="q-title">${escapeHtml(q.q)}</h1><button class="star ${isFav(q.id)?'on':''}" id="qstar">★</button></div><div class="pill ${multi?'warn':'blue'}">${multi?'Можно выбрать несколько вариантов':'Один правильный вариант'}</div><div class="options">${q.o.map((o,i)=>optionHtml(q,i)).join('')}</div><div id="note"></div><div class="quiz-actions single-finish"><button class="btn finish-test-btn" id="finishTest">Завершить тест</button>${multi&&!session.answered?'<div class="check-wrap"><button class="btn primary" id="check">Проверить</button></div>':''}</div><div class="hint"><span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.</div></div></section>`;
+    app.innerHTML=`<section class="quiz-shell"><div class="progress"><span style="width:${pct}%"></span></div><div class="quiz-meta"><div class="quiz-meta-left"><span>${escapeHtml(session.title)}</span><span>·</span><span class="quiz-mode">${modeLabel()}</span></div><div class="quiz-meta-center">Вопрос ${session.pos+1} из ${session.ids.length}</div><div class="quiz-meta-spacer" aria-hidden="true"></div></div>${renderQNavV48()}<div class="question-card" id="qcard"><div class="q-head"><h1 class="q-title">${escapeHtml(q.q)}</h1><button class="star ${isFav(q.id)?'on':''}" id="qstar">★</button></div><div class="pill ${multi?'warn':'blue'}">${multi?'Можно выбрать несколько вариантов':'Один правильный вариант'}</div><div class="options">${q.o.map((o,i)=>optionHtml(q,i)).join('')}</div><div id="note"></div><div class="quiz-actions single-finish"><button class="btn finish-test-btn" id="finishTest">Завершить тест</button>${multi&&!session.answered?'<div class="check-wrap"><button class="btn primary" id="check">Проверить</button></div>':''}</div><div class="hint"><span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.</div></div></section>`;
     const star=document.getElementById('qstar'); if(star) star.onclick=()=>{toggleFav(q.id); star.classList.toggle('on',isFav(q.id));};
     const finish=document.getElementById('finishTest'); if(finish) finish.onclick=()=>{ if(allAnsweredV48()) finishSummaryV48(); else showActionModal('finishQuizModal','Завершить тест?','Если завершить сейчас, текущая попытка будет закрыта. Уже отвеченные вопросы останутся в общей статистике, но результат этого теста не откроется.',[{label:'Продолжить тест',className:'btn train',cancel:true},{label:'Завершить тест',className:'btn danger-outline',onClick:()=>exitQuiz()}]); };
     document.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>chooseOption(Number(btn.dataset.i)));
@@ -3953,7 +3953,7 @@ renderHome();
       note.innerHTML=`<div class="answer-note ${ok?'ok':'bad'}"><div class="answer-status-line"><b>${ok?'✓ Верно':'× Неверно'}</b><span class="saved-pill">Ответ сохранён</span></div>${correct?`<div class="small correct-answer-clean"><span class="correct-answer-title">Правильный ответ:</span><br>${correct}</div>`:''}</div>`;
     }
     const check=document.getElementById('check'); if(check) check.classList.add('hidden');
-    const hint=document.querySelector('.hint'); if(hint) hint.innerHTML='<span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+    const hint=document.querySelector('.hint'); if(hint) hint.innerHTML='<span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
     const prog=document.querySelector('.progress span'); if(prog) prog.style.width=(answeredCountV48()/session.ids.length*100)+'%';
     refreshQNavV48();
   };
@@ -4220,7 +4220,7 @@ html.theme-dark .quiz-footer-card{background:#111827;border-color:#334155;box-sh
       if(!actions && !hint) return;
       const footer=document.createElement('div'); footer.className='quiz-footer-card';
       const hintBox=document.createElement('div'); hintBox.className='quiz-footer-hint';
-      if(hint){ hintBox.appendChild(hint); } else { hintBox.innerHTML='<div class="hint"><span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.</div>'; }
+      if(hint){ hintBox.appendChild(hint); } else { hintBox.innerHTML='<div class="hint"><span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.</div>'; }
       footer.appendChild(hintBox);
       if(actions) footer.appendChild(actions);
       card.insertAdjacentElement('afterend', footer);
@@ -11371,7 +11371,7 @@ body.quiz-active .opt.missed::after{
 
 <script id="v130-stable-answer-hint-script">
 (function(){
-  const HINT_HTML = '<span class="kbd">Enter</span>, <span class="kbd">Space</span> или клик по карточке — следующий вопрос.';
+  const HINT_HTML = '<span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
   const LEGACY_HINT_SELECTOR = '.question-card > .hint, .quiz-footer-hint, .quiz-footer-card .hint, .hint.next-hint-one-line:not(.answer-next-hint-v130), .next-hint-one-line:not(.answer-next-hint-v130)';
 
   function getSessionAnsweredV130(){
@@ -11730,6 +11730,490 @@ body.quiz-active .question-nav{
   }, {passive:true});
 
   window.giaCleanScrollCurrentQuestionDotV135 = ensureCurrentDotVisibleV135;
+})();
+</script>
+
+
+<style id="v136-clean-feedback-and-partial-dots-style">
+/* v136: скрываем текстовый блок результата после ответа, оставляем только подсказку перехода */
+body.quiz-active #note > .answer-note{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+}
+body.quiz-active .q-dot.partial{
+  background:#f59e0b!important;
+  border-color:#f59e0b!important;
+  color:#111827!important;
+}
+body.quiz-active .q-dot.partial.current{
+  outline:3px solid rgba(245,158,11,.28)!important;
+  border-color:#d97706!important;
+  transform:translateY(-1px) scale(1.04);
+}
+body.quiz-active .q-dot.current:not(.ok):not(.bad):not(.partial){
+  background:var(--accent)!important;
+  border-color:var(--accent)!important;
+  color:#fff!important;
+}
+html.theme-dark body.quiz-active .q-dot.partial,
+html.telegram-mini-app.theme-dark body.quiz-active .q-dot.partial{
+  background:rgba(245,158,11,.30)!important;
+  border-color:rgba(251,191,36,.55)!important;
+  color:#fde68a!important;
+}
+html.theme-dark body.quiz-active .q-dot.partial.current,
+html.telegram-mini-app.theme-dark body.quiz-active .q-dot.partial.current{
+  outline-color:rgba(251,191,36,.24)!important;
+}
+</style>
+<script id="v136-clean-feedback-and-partial-dots-script">
+(function(){
+  const build = 'v136-clean-feedback-and-partial-dots';
+  const HINT_HTML = '<span class="kbd">Enter</span>, <span class="kbd">Space</span> или <strong class="click-card-bold">клик по карточке</strong> — следующий вопрос.';
+
+  try{
+    if(document.body) document.body.setAttribute('data-build', build);
+    document.documentElement.setAttribute('data-gia-build', build);
+  }catch(e){}
+
+  function currentQuestionV136(){
+    try{
+      if(!session || !session.ids) return null;
+      return byId.get(session.ids[session.pos]) || null;
+    }catch(e){ return null; }
+  }
+
+  function answerForIndexV136(index){
+    try{
+      if(!session || !session.ids || !session.answers) return null;
+      const id = session.ids[index];
+      return id ? (session.answers[id] || null) : null;
+    }catch(e){ return null; }
+  }
+
+  function selectedV136(){
+    try{ return Array.isArray(session && session.selected) ? session.selected.slice() : []; }
+    catch(e){ return []; }
+  }
+
+  function equalSetsV136(a,b){
+    a = Array.isArray(a) ? a.slice().sort(function(x,y){return x-y;}) : [];
+    b = Array.isArray(b) ? b.slice().sort(function(x,y){return x-y;}) : [];
+    return a.length === b.length && a.every(function(x,i){ return x === b[i]; });
+  }
+
+  function isPartialMultipleV136(q, selected){
+    try{
+      if(!q || !Array.isArray(q.a) || q.a.length <= 1) return false;
+      selected = Array.isArray(selected) ? Array.from(new Set(selected.map(Number))) : [];
+      if(!selected.length) return false;
+      const correct = new Set(q.a.map(Number));
+      const hasWrong = selected.some(function(i){ return !correct.has(i); });
+      const hasCorrect = selected.some(function(i){ return correct.has(i); });
+      return hasCorrect && !hasWrong && selected.length < correct.size;
+    }catch(e){ return false; }
+  }
+
+  function cleanAnswerFeedbackV136(){
+    try{
+      const note = document.getElementById('note');
+      if(!note) return;
+      const answered = !!(session && session.answered);
+      note.querySelectorAll('.answer-next-hint, .answer-next-hint-v130').forEach(function(el, idx){
+        if(idx > 0) el.remove();
+      });
+      let hint = note.querySelector('.answer-next-hint-v130') || note.querySelector('.answer-next-hint');
+      if(!answered){
+        if(hint) hint.remove();
+        return;
+      }
+      if(!hint){
+        hint = document.createElement('div');
+        note.appendChild(hint);
+      }else if(hint.parentElement !== note){
+        note.appendChild(hint);
+      }
+      hint.className = 'answer-next-hint-v130';
+      hint.innerHTML = HINT_HTML;
+      hint.removeAttribute('style');
+    }catch(e){}
+  }
+
+  function applyPartialDotsV136(){
+    try{
+      if(!session || !session.ids) return;
+      document.querySelectorAll('.question-nav [data-qjump], [data-qjump].q-dot').forEach(function(btn){
+        const index = Number(btn.getAttribute('data-qjump'));
+        if(!Number.isFinite(index)) return;
+        const ans = answerForIndexV136(index);
+        const isPartial = !!(ans && ans.partial);
+        btn.classList.toggle('partial', isPartial);
+        if(isPartial){
+          btn.classList.remove('ok','bad','unanswered');
+          const label = 'Вопрос ' + (index + 1) + ': выбран не полный ответ';
+          btn.setAttribute('title', label);
+          btn.setAttribute('aria-label', label);
+        }
+      });
+    }catch(e){}
+  }
+
+  function scheduleUiV136(){
+    cleanAnswerFeedbackV136();
+    applyPartialDotsV136();
+    if(window.requestAnimationFrame) requestAnimationFrame(function(){
+      cleanAnswerFeedbackV136();
+      applyPartialDotsV136();
+    });
+    setTimeout(function(){ cleanAnswerFeedbackV136(); applyPartialDotsV136(); }, 0);
+    setTimeout(function(){ cleanAnswerFeedbackV136(); applyPartialDotsV136(); }, 80);
+  }
+
+  function installWrapperV136(name, after){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old !== 'function' || old.__v136CleanFeedbackPartialDots) return;
+      const wrapped = function(){
+        const result = old.apply(this, arguments);
+        try{ after && after.apply(this, arguments); }catch(e){}
+        scheduleUiV136();
+        return result;
+      };
+      wrapped.__v136CleanFeedbackPartialDots = true;
+      window[name] = wrapped;
+      try{ globalThis[name] = wrapped; }catch(e){}
+      try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+    }catch(e){}
+  }
+
+  function installFinishAnswerV136(){
+    try{
+      const old = window.finishAnswer || (typeof globalThis !== 'undefined' ? globalThis.finishAnswer : null);
+      if(typeof old !== 'function' || old.__v136CleanFeedbackPartialDots) return;
+      const wrapped = function(okArg){
+        const q = currentQuestionV136();
+        const selected = selectedV136();
+        const partial = isPartialMultipleV136(q, selected);
+        const exact = q && Array.isArray(q.a) ? equalSetsV136(selected, q.a) : !!okArg;
+        const result = old.call(this, partial ? false : exact);
+        try{
+          if(partial && session && session.answers && q && session.answers[q.id]){
+            session.answers[q.id].ok = false;
+            session.answers[q.id].partial = true;
+            session.answers[q.id].incomplete = true;
+            if(Array.isArray(session.mistakes) && !session.mistakes.includes(q.id)) session.mistakes.push(q.id);
+            if(Array.isArray(store && store.errorIds) && !store.errorIds.includes(q.id)){
+              store.errorIds.push(q.id);
+              if(typeof save === 'function') save();
+            }
+          }
+        }catch(e){}
+        scheduleUiV136();
+        return result;
+      };
+      wrapped.__v136CleanFeedbackPartialDots = true;
+      window.finishAnswer = wrapped;
+      try{ globalThis.finishAnswer = wrapped; }catch(e){}
+      try{ finishAnswer = window.finishAnswer; }catch(e){}
+    }catch(e){}
+  }
+
+  installFinishAnswerV136();
+  ['renderQuiz','renderAnswered','chooseOption','checkMulti','nextQuestion','startQuiz'].forEach(function(name){
+    installWrapperV136(name);
+  });
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('.opt,#check,[data-qjump]')) scheduleUiV136();
+  }, true);
+  document.addEventListener('DOMContentLoaded', scheduleUiV136);
+  window.addEventListener('resize', scheduleUiV136, {passive:true});
+  try{
+    const app = document.getElementById('app') || document.body;
+    const obs = new MutationObserver(function(){
+      clearTimeout(obs.__v136Timer);
+      obs.__v136Timer = setTimeout(scheduleUiV136, 12);
+    });
+    obs.observe(app, {childList:true, subtree:true, attributes:true, attributeFilter:['class']});
+  }catch(e){}
+  scheduleUiV136();
+})();
+</script>
+
+
+
+<style id="v137-slightly-smaller-question-font">
+/* v137: чуть уменьшаем только текст формулировки вопроса в режиме теста */
+body.quiz-active .q-title{
+  font-size:21.5px!important;
+  line-height:1.32!important;
+}
+@media(max-width:760px){
+  body.quiz-active .q-title{
+    font-size:17.5px!important;
+    line-height:1.30!important;
+  }
+}
+</style>
+
+
+
+<style id="v138-partial-dot-warn-color-fix">
+/* v138: частично правильный множественный ответ всегда выглядит как жёлтая подсказка "Можно выбрать несколько вариантов", даже когда вопрос активен */
+body.quiz-active .question-nav .q-dot.partial,
+body.quiz-active .question-nav .q-dot.partial.current,
+body.quiz-active .question-nav .q-dot.partial.bad,
+body.quiz-active .question-nav .q-dot.partial.ok,
+body.quiz-active .question-nav [data-qjump].q-dot.partial,
+body.quiz-active .question-nav [data-qjump].q-dot.partial.current,
+body.quiz-active .question-nav [data-qjump].q-dot.partial.bad,
+body.quiz-active .question-nav [data-qjump].q-dot.partial.ok{
+  background:#fff7e6!important;
+  border-color:#fedf89!important;
+  color:#b54708!important;
+  box-shadow:none!important;
+}
+body.quiz-active .question-nav .q-dot.partial.current,
+body.quiz-active .question-nav [data-qjump].q-dot.partial.current{
+  outline:3px solid rgba(254,223,137,.82)!important;
+  transform:translateY(-1px) scale(1.04)!important;
+}
+body.quiz-active .question-nav .q-dot.partial:hover,
+body.quiz-active .question-nav [data-qjump].q-dot.partial:hover{
+  background:#fff7e6!important;
+  border-color:#fdb022!important;
+  color:#93370d!important;
+}
+html.theme-dark body.quiz-active .question-nav .q-dot.partial,
+html.theme-dark body.quiz-active .question-nav .q-dot.partial.current,
+html.theme-dark body.quiz-active .question-nav .q-dot.partial.bad,
+html.theme-dark body.quiz-active .question-nav .q-dot.partial.ok,
+html.telegram-mini-app.theme-dark body.quiz-active .question-nav .q-dot.partial,
+html.telegram-mini-app.theme-dark body.quiz-active .question-nav .q-dot.partial.current,
+html.telegram-mini-app.theme-dark body.quiz-active .question-nav .q-dot.partial.bad,
+html.telegram-mini-app.theme-dark body.quiz-active .question-nav .q-dot.partial.ok{
+  background:#422006!important;
+  border-color:#ca8a04!important;
+  color:#facc15!important;
+}
+html.theme-dark body.quiz-active .question-nav .q-dot.partial.current,
+html.telegram-mini-app.theme-dark body.quiz-active .question-nav .q-dot.partial.current{
+  outline:3px solid rgba(202,138,4,.32)!important;
+}
+</style>
+<script id="v138-partial-dot-current-fix">
+(function(){
+  const build='v138-partial-dot-current-fix';
+  try{
+    if(document.body) document.body.setAttribute('data-build', build);
+    document.documentElement.setAttribute('data-gia-build', build);
+  }catch(e){}
+
+  function getQuestionByIdV138(id){
+    try{ return byId && byId.get ? byId.get(id) : null; }catch(e){ return null; }
+  }
+
+  function getAnswerV138(index){
+    try{
+      if(!session || !session.ids || !session.answers) return null;
+      const id=session.ids[index];
+      return id ? (session.answers[id] || null) : null;
+    }catch(e){ return null; }
+  }
+
+  function normalizeSelectionV138(list){
+    if(!Array.isArray(list)) return [];
+    return Array.from(new Set(list.map(Number).filter(Number.isFinite)));
+  }
+
+  function isPartialMultipleV138(q, selected){
+    try{
+      if(!q || !Array.isArray(q.a) || q.a.length<=1) return false;
+      selected=normalizeSelectionV138(selected);
+      if(!selected.length) return false;
+      const correct=new Set(q.a.map(Number));
+      const hasWrong=selected.some(function(i){ return !correct.has(i); });
+      const hasCorrect=selected.some(function(i){ return correct.has(i); });
+      return hasCorrect && !hasWrong && selected.length<correct.size;
+    }catch(e){ return false; }
+  }
+
+  function markPartialInStateV138(index){
+    try{
+      if(!session || !session.ids || !session.answers) return false;
+      const id=session.ids[index];
+      if(!id) return false;
+      const q=getQuestionByIdV138(id);
+      const ans=session.answers[id];
+      let selected=ans && Array.isArray(ans.selected) ? ans.selected : null;
+      if(index===session.pos && session.answered && (!selected || !selected.length)) selected=session.selected;
+      const partial=isPartialMultipleV138(q, selected);
+      if(!partial) return false;
+      if(ans){
+        ans.partial=true;
+        ans.incomplete=true;
+        ans.ok=false;
+      }
+      if(Array.isArray(session.mistakes) && !session.mistakes.includes(id)) session.mistakes.push(id);
+      if(typeof store==='object' && store && Array.isArray(store.errorIds) && !store.errorIds.includes(id)){
+        store.errorIds.push(id);
+        try{ if(typeof save==='function') save(); }catch(e){}
+      }
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function applyPartialDotsV138(){
+    try{
+      if(!session || !session.ids) return;
+      const buttons=document.querySelectorAll('.question-nav [data-qjump], [data-qjump].q-dot');
+      buttons.forEach(function(btn){
+        const index=Number(btn.getAttribute('data-qjump'));
+        if(!Number.isFinite(index)) return;
+        const ans=getAnswerV138(index);
+        const isPartial=!!(ans && ans.partial) || markPartialInStateV138(index);
+        btn.classList.toggle('partial', isPartial);
+        if(isPartial){
+          btn.classList.remove('ok','bad','unanswered');
+          const label='Вопрос '+(index+1)+': выбран не полный ответ';
+          btn.setAttribute('title', label);
+          btn.setAttribute('aria-label', label);
+        }
+      });
+    }catch(e){}
+  }
+
+  function scheduleV138(){
+    applyPartialDotsV138();
+    if(window.requestAnimationFrame) requestAnimationFrame(applyPartialDotsV138);
+    setTimeout(applyPartialDotsV138,0);
+    setTimeout(applyPartialDotsV138,60);
+    setTimeout(applyPartialDotsV138,180);
+  }
+
+  function wrapV138(name){
+    try{
+      const old=window[name] || (typeof globalThis!=='undefined' ? globalThis[name] : null);
+      if(typeof old!=='function' || old.__v138PartialDotCurrentFix) return;
+      const wrapped=function(){
+        const result=old.apply(this, arguments);
+        scheduleV138();
+        return result;
+      };
+      wrapped.__v138PartialDotCurrentFix=true;
+      window[name]=wrapped;
+      try{ globalThis[name]=wrapped; }catch(e){}
+      try{ eval(name+' = window["'+name+'"]'); }catch(e){}
+    }catch(e){}
+  }
+
+  ['renderQuiz','renderAnswered','chooseOption','checkMulti','finishAnswer','nextQuestion','startQuiz'].forEach(wrapV138);
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('.opt,#check,[data-qjump]')) scheduleV138();
+  }, true);
+  document.addEventListener('DOMContentLoaded', scheduleV138);
+  window.addEventListener('resize', scheduleV138, {passive:true});
+  try{
+    const root=document.getElementById('app') || document.body;
+    const obs=new MutationObserver(function(){
+      clearTimeout(obs.__v138Timer);
+      obs.__v138Timer=setTimeout(scheduleV138,16);
+    });
+    obs.observe(root, {childList:true, subtree:true, attributes:true, attributeFilter:['class']});
+  }catch(e){}
+  scheduleV138();
+})();
+</script>
+
+
+
+<style id="v139-bold-click-card-in-answer-hint">
+/* v139: жирным выделяем только фразу "клик по карточке" в подсказке под отвеченным вопросом, размер не меняем */
+body.quiz-active #note .answer-next-hint-v130 .click-card-bold,
+body.quiz-active #note .answer-next-hint-v130 strong.click-card-bold,
+body.quiz-active .answer-next-hint-v130 .click-card-bold,
+body.quiz-active .answer-next-hint-v130 strong.click-card-bold{
+  font-weight:950!important;
+  font-size:inherit!important;
+  line-height:inherit!important;
+  color:inherit!important;
+  font-family:inherit!important;
+  font-variation-settings:"wght" 950;
+}
+</style>
+<script id="v139-bold-click-card-in-answer-hint-script">
+(function(){
+  const build='v139-bold-click-card-in-answer-hint';
+  try{
+    if(document.body) document.body.setAttribute('data-build', build);
+    document.documentElement.setAttribute('data-gia-build', build);
+  }catch(e){}
+
+  function normalizeClickCardBoldV139(){
+    try{
+      document.querySelectorAll('#note .answer-next-hint-v130 .click-card-bold, .answer-next-hint-v130 .click-card-bold').forEach(function(el){
+        if(el.tagName && el.tagName.toLowerCase()==='strong'){
+          el.style.fontWeight='950';
+          el.style.fontSize='inherit';
+          return;
+        }
+        const strong=document.createElement('strong');
+        strong.className=el.className || 'click-card-bold';
+        strong.textContent=el.textContent || 'клик по карточке';
+        strong.style.fontWeight='950';
+        strong.style.fontSize='inherit';
+        strong.style.lineHeight='inherit';
+        strong.style.color='inherit';
+        el.replaceWith(strong);
+      });
+    }catch(e){}
+  }
+
+  function scheduleV139(){
+    normalizeClickCardBoldV139();
+    if(window.requestAnimationFrame) requestAnimationFrame(normalizeClickCardBoldV139);
+    setTimeout(normalizeClickCardBoldV139,0);
+    setTimeout(normalizeClickCardBoldV139,80);
+  }
+
+  ['renderQuiz','renderAnswered','chooseOption','checkMulti','finishAnswer','nextQuestion','startQuiz'].forEach(function(name){
+    try{
+      const old=window[name] || (typeof globalThis!=='undefined' ? globalThis[name] : null);
+      if(typeof old!=='function' || old.__v139BoldClickCard) return;
+      const wrapped=function(){
+        const result=old.apply(this, arguments);
+        scheduleV139();
+        return result;
+      };
+      wrapped.__v139BoldClickCard=true;
+      window[name]=wrapped;
+      try{ globalThis[name]=wrapped; }catch(e){}
+      try{ eval(name+' = window["'+name+'"]'); }catch(e){}
+    }catch(e){}
+  });
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('.opt,#check,#finishTest,[data-qjump]')) scheduleV139();
+  }, true);
+  document.addEventListener('DOMContentLoaded', scheduleV139);
+  try{
+    const root=document.getElementById('app') || document.body;
+    const obs=new MutationObserver(function(){
+      clearTimeout(obs.__v139Timer);
+      obs.__v139Timer=setTimeout(scheduleV139,16);
+    });
+    obs.observe(root,{childList:true,subtree:true});
+  }catch(e){}
+  scheduleV139();
 })();
 </script>
 
