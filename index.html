@@ -11490,5 +11490,86 @@ html.telegram-mini-app.theme-dark .search-open-answer{
 })();
 </script>
 
+
+<script id="v127-auto-scroll-current-question-dot">
+(function(){
+  const EXTRA_SPACE = 18; // небольшой запас слева/справа, чтобы кружок не прилипал к краю
+
+  function getCurrentDot(){
+    const nav = document.querySelector('.question-nav');
+    if(!nav) return null;
+    return nav.querySelector('.q-dot.current,[data-qjump].current');
+  }
+
+  function scrollCurrentQuestionDotIntoView(behavior){
+    const btn = getCurrentDot();
+    if(!btn) return;
+
+    const nav = btn.closest('.question-nav');
+    if(!nav || nav.scrollWidth <= nav.clientWidth + 2) return;
+
+    try{
+      const navRect = nav.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+
+      let shift = 0;
+
+      // Кружок ушёл влево — двигаем ряд чуть влево.
+      if(btnRect.left < navRect.left + EXTRA_SPACE){
+        shift = btnRect.left - navRect.left - EXTRA_SPACE;
+      }
+      // Кружок ушёл вправо — двигаем ряд чуть вправо.
+      else if(btnRect.right > navRect.right - EXTRA_SPACE){
+        shift = btnRect.right - navRect.right + EXTRA_SPACE;
+      }
+
+      if(Math.abs(shift) > 1){
+        nav.scrollTo({
+          left: Math.max(0, nav.scrollLeft + shift),
+          behavior: behavior || 'smooth'
+        });
+      }
+    }catch(e){}
+  }
+
+  function scheduleAutoScrollCurrentDot(){
+    // Несколько запусков нужны, потому что ряд кружков у тебя перерисовывается,
+    // а старый патч v125 может на мгновение восстановить прежний scrollLeft.
+    setTimeout(function(){ scrollCurrentQuestionDotIntoView('auto'); }, 0);
+    requestAnimationFrame(function(){ scrollCurrentQuestionDotIntoView('smooth'); });
+    setTimeout(function(){ scrollCurrentQuestionDotIntoView('smooth'); }, 90);
+    setTimeout(function(){ scrollCurrentQuestionDotIntoView('smooth'); }, 240);
+  }
+
+  window.giaScrollCurrentQuestionDotV127 = scheduleAutoScrollCurrentDot;
+
+  ['renderQuiz','refreshQuestionNav','refreshQNavV48','nextQuestion','chooseOption','checkMulti'].forEach(function(name){
+    try{
+      const old = window[name] || (typeof globalThis !== 'undefined' ? globalThis[name] : null);
+      if(typeof old === 'function' && !old.__v127AutoScrollCurrentDot){
+        const wrapped = function(){
+          const result = old.apply(this, arguments);
+          scheduleAutoScrollCurrentDot();
+          return result;
+        };
+        wrapped.__v127AutoScrollCurrentDot = true;
+        window[name] = wrapped;
+        try{ globalThis[name] = wrapped; }catch(e){}
+        try{ eval(name + ' = window["' + name + '"]'); }catch(e){}
+      }
+    }catch(e){}
+  });
+
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-qjump]')){
+      scheduleAutoScrollCurrentDot();
+    }
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', scheduleAutoScrollCurrentDot);
+  window.addEventListener('resize', scheduleAutoScrollCurrentDot, {passive:true});
+})();
+</script>
+
 </body>
 </html>
